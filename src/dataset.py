@@ -1,12 +1,12 @@
-from random import sample
+from random import sample, randint
 
 class BundleGenerator:
     def __init__(self, items):
-        self.items = items
+        self.n = len(items)
 
     def __call__(self):
-        k = len(self.items)
-        return sample(self.items, k=k) # It is error-prone but is not important
+        k = randint(1, self.n)
+        return sample(list(range(self.n)), k=k) # It is error-prone but is not important
 
 
 class ValueFunction:
