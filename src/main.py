@@ -1,5 +1,6 @@
 from dataset import DataHandler, ConstantValueFunction
 from query import NextQueryGenerator
+from optimizer import RandGreedyOptimizer
 from train import Trainer
 
 
@@ -32,3 +33,5 @@ trainer = Trainer(data_handler)
 vhats = trainer.train()
 
 # Running the auction
+optimizer = RandGreedyOptimizer(items, bidders, vhats)
+output = optimizer.optimize()
