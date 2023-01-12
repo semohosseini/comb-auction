@@ -1,2 +1,2 @@
 from .allocation import *
-from .train import *
+from .learning import *

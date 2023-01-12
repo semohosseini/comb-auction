@@ -1,6 +1,7 @@
 from typing import Union, List
+from numbers import Number
 import torch.nn as nn
-from layers import PosLinear, MiLU
+from .layers import PosLinear, MiLU
 
 class SCMM(nn.Module):
     def __init__(self, in_dim, out_dim, alpha: float = 1.0):
@@ -17,7 +18,7 @@ class SCMM(nn.Module):
 class DSF(nn.Module): # Deep Submodular Function
     def __init__(self, in_dim, out_dim, max_out, hidden_sizes: List[int], alpha: Union[List[float], float] = 1.0):
         super(DSF, self).__init__()
-        if isinstance(alpha, float):
+        if isinstance(alpha, Number):
             alpha = [alpha] * len(hidden_sizes)
 
         self.layers = nn.ParameterList()

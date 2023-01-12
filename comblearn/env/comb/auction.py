@@ -1,8 +1,7 @@
-from data import DataHandler
-from comb.query import NextQueryGenerator
+from .data import DataHandler
+from .query import NextQueryGenerator
 
-from optim.train import Trainer
-from optim.allocation import RandGreedyOptimizer
+from ...optim import RandGreedyOptimizer
 
 import numpy as np
 
@@ -13,7 +12,7 @@ class CombinatorialAuction():
         self.bidders = bidders
         self.items = items
         self.data_handler = DataHandler(items, len(bidders), vf_cls, q_init)
-        self.next_queries = NextQueryGenerator(items)
+        self.next_queries = NextQueryGenerator(items, self.data_handler)
 
     def run(self):
         # Generating Data
@@ -30,13 +29,13 @@ class CombinatorialAuction():
             self.data_handler.add_queries([main_queries] + marginal_queries)
             t += 1
 
-        # Training value functions on data
-        trainer = Trainer(self.data_handler)
-        vhats = trainer.train()
+        # # Training value functions on data
+        # trainer = Trainer(self.data_handler)
+        # vhats = trainer.train()
 
-        # Running the auction
-        optimizer = RandGreedyOptimizer(self.items, self.bidders, vhats)
-        allocations = optimizer.optimize()
+        # # Running the auction
+        # optimizer = RandGreedyOptimizer(self.items, self.bidders, vhats)
+        # allocations = optimizer.optimize()
 
         # TODO: payment calculation
-        payments = np.zeros_like(allocations)
+        # payments = np.zeros_like(allocations)
