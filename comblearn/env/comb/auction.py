@@ -1,41 +1,72 @@
 from .data import DataHandler
 from .query import NextQueryGenerator
 
-from ...optim import RandGreedyOptimizer
+from ...optim import RandGreedyOptimizer, DSFLearner
+
+import logging
 
 import numpy as np
 
 class CombinatorialAuction():
-    def __init__(self, bidders, items, vf_cls, q_init, q_max) -> None:
+    def __init__(self, bidders, items, vfs, q_init, q_max) -> None:
         self.q_init = q_init
         self.q_max = q_max
         self.bidders = bidders
         self.items = items
-        self.data_handler = DataHandler(items, len(bidders), vf_cls, q_init)
-        self.next_queries = NextQueryGenerator(items, self.data_handler)
+        self.data_handler = DataHandler(items, len(bidders), vfs, q_init)
 
-    def run(self):
-        # Generating Data
+    def social_welfare(self, value_functions, allocation):
+        return np.sum([vf(alloc) for vf, alloc in zip(value_functions, allocation)])
+
+    def run(self, epochs=1000, lr=0.001):
+        # Parameters
         T = (self.q_max - self.q_init) // len(self.bidders)
         t = 1
+        m = len(self.items)
+        n = len(self.bidders)
 
+        # Generating next queries
         while t <= T:
-            main_queries = self.next_queries(self.bidders, self.data_handler.R)
-            marginal_queries = []
-            for i in range(len(self.bidders)):
-                bidders_i = self.bidders[:i] + self.bidders[i+1:]
+            next_queries = NextQueryGenerator(m, n)
+            new_queries = next_queries(self.data_handler.value_functions, self.data_handler.R, epochs=epochs, lr=lr)
+
+            next_queries = NextQueryGenerator(m, n-1)
+            for i in range(n):
+                value_functions_i = self.data_handler.value_functions[:i] + self.data_handler.value_functions[i+1:]
                 R_i = self.data_handler.R[:i] + self.data_handler.R[i+1:]
-                marginal_queries.append(self.next_queries(bidders_i, R_i))
-            self.data_handler.add_queries([main_queries] + marginal_queries)
+                marginal_query = next_queries(value_functions_i, R_i, epochs=epochs, lr=lr)
+                for j in range(n):
+                    if j < i:
+                        new_queries[j] = np.vstack([new_queries[j], marginal_query[j]])
+                    elif j == i:
+                        continue
+                    else:
+                        new_queries[j] = np.vstack([new_queries[j], marginal_query[j-1]])
+                    
+            self.data_handler.add_queries(new_queries)
             t += 1
 
-        # # Training value functions on data
-        # trainer = Trainer(self.data_handler)
-        # vhats = trainer.train()
+        # Final allocation
+        for vf, data in zip(self.data_handler.value_functions, self.data_handler.R):
+            X, y = data
+            learner = DSFLearner(vf, lr, X, y)
+            loss = learner(epochs)
+            i += 1
+            logging.info(f"Bidder {i}, loss: {loss}")
 
-        # # Running the auction
-        # optimizer = RandGreedyOptimizer(self.items, self.bidders, vhats)
-        # allocations = optimizer.optimize()
+        optimizer = RandGreedyOptimizer(m, n, self.data_handler.value_functions)
+        optimizer.optimize()
+        allocation = optimizer.generate_allocation()
+        social_welfare_opt = self.social_welfare(self.data_handler.value_functions, allocation)
 
-        # TODO: payment calculation
-        # payments = np.zeros_like(allocations)
+        # Payment calculation
+        payments = np.zeros((n, 1))
+        for i in range(n):
+            value_functions_i = self.data_handler.value_functions[:i] + self.data_handler.value_functions[i+1:]
+            optimizer = RandGreedyOptimizer(m, n-1, value_functions_i)
+            optimizer.optimize()
+            allocation_i = optimizer.generate_allocation()
+            social_welfare_i = self.social_welfare(value_functions_i, allocation_i)
+            payments[i, 0] = social_welfare_i - social_welfare_opt
+
+        return allocation, payments

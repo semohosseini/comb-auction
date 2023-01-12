@@ -7,16 +7,16 @@ class DSFLearner:
         self.vf = dsf_vf
         self.device = dsf_vf.device
         self.criterion = torch.nn.MSELoss()
-        self.optimizer = torch.optim.SGD(self.dsf.parameters(), lr=lr)
+        self.optimizer = torch.optim.SGD(self.vf.parameters(), lr=lr)
         self.x_data = torch.tensor(x_data).float().to(self.device)
         self.y_data = torch.tensor(y_data).float().to(self.device)
 
-    def run(self, epochs=1000):
-        for epoch in range(epochs): 
+    def __call__(self, epochs=1000):
+        for _ in range(epochs): 
             y_pred = self.dsf(self.x_data)
             loss = self.criterion(y_pred, self.y_data)
         
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
-            print('epoch {}, loss {}'.format(epoch, loss.item()))
+        return loss.item()

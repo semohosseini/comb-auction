@@ -22,9 +22,9 @@ class DataHandler:
         self.bundle_generator = BundleGenerator(items)
         self.R = [self._generate_initial_data(vf, q_init) for vf in self.value_functions]
 
-    def _generate_initial_data(self, vf, q):
-        bundles = [self.bundle_generator() for _ in range(q)]
-        return [(b, vf(b)) for b in bundles]
+    def _generate_initial_data(self, vf, q: int):
+        bundles = self.bundle_generator(q)
+        return bundles, vf(bundles)
 
     def __getitem__(self, key):
         if key in range(self.N):
@@ -32,8 +32,8 @@ class DataHandler:
         raise ValueError(f"Key {key} is not in range!")
 
     def add_queries(self, list_queries):
-        for queries in list_queries:
-            for i in range(self.N):
-                q = queries[i]
-                vf = self.value_functions[i]
-                self.R[i].append((q, vf(q)))
+        for i, qs in enumerate(list_queries):
+            vf = self.value_functions[i]
+            X, y = self.R[i]
+            newX, newy = qs, vf(qs)
+            self.R[i] = np.vstack([X, newX]), np.vstack([y, newy])
