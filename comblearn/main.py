@@ -1,5 +1,5 @@
-from env.comb.auction import CombinatorialAuction
-from data.value import ConstantValueFunction
+from env.comb import CombinatorialAuction
+from data import ConstantValueFunction
 
 # Configuration
 N = 10  # Number of bidders
