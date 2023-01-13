@@ -19,7 +19,7 @@ class CombinatorialAuction():
         self.device = device
 
     def social_welfare(self, value_functions, allocation):
-        return torch.sum([vf(alloc) for vf, alloc in zip(value_functions, allocation)])
+        return torch.sum(torch.tensor([vf(alloc) for vf, alloc in zip(value_functions, allocation)]).to(self.device))
 
     def run(self, epochs=1000, lr=0.001, delta=0.001, sample_rate=10):
         # Parameters
@@ -56,6 +56,7 @@ class CombinatorialAuction():
             t += 1
 
         # Final allocation
+        i = 0
         logging.info("Final allocation calculation...")
         for vf, data in zip(self.value_functions, self.data_handler):
             X, y = data
@@ -72,6 +73,7 @@ class CombinatorialAuction():
         logging.info(f"Social welfare: {social_welfare_opt}")
 
         # Payment calculation
+        logging.info("Payment calculation..")
         payments = torch.zeros((n, 1)).to(self.device)
         for i in range(n):
             value_functions_i = self.value_functions[:i] + self.value_functions[i+1:]
@@ -81,6 +83,6 @@ class CombinatorialAuction():
             social_welfare_i = self.social_welfare(value_functions_i, allocation_i)
             payments[i, 0] = social_welfare_i - social_welfare_opt
         
-        logging.info(f"Payments: {payments}")
+        logging.info(f"Payments: {payments.squeeze()}")
 
-        return allocation, payments
+        return allocation, payments.squeeze()

@@ -29,8 +29,8 @@ def test_rand_greedy():
     delta = 0.001
     sample_rate = 5
     optimizer = RandGreedyOptimizer(m, n, ws)
-    # optimizer.optimize(delta, sample_rate)
-    # allocation = optimizer.generate_allocation()
+    optimizer.optimize(delta, sample_rate)
+    allocation = optimizer.generate_allocation()
     
-    # logging.info(f"Optimal allocation: {allocation}")
-    # logging.info(f"Social welfare: {social_welfare(ws, allocation)}")
+    logging.info(f"Optimal allocation: {allocation}")
+    logging.info(f"Social welfare: {social_welfare(ws, allocation)}")

@@ -8,7 +8,7 @@ def test_comb():
     N = 5  # Number of bidders
     bidders = list(range(N))
     q_init = 500  # Number of initial queries
-    q_max = 800  # Maximum number of queries per bidder
+    q_max = 510  # Maximum number of queries per bidder
     items = list(range(8))
 
     value_functions = [DSFValueFunction(items, 100, [2, 3, 2], 500), 
