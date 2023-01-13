@@ -1,15 +1,15 @@
-
-import numpy as np
+import torch
 
 class BundleGenerator:
-    def __init__(self, items):
+    def __init__(self, items, device='cuda' if torch.cuda.is_available() else 'cpu'):
         self.n = len(items)
+        self.device = device
 
     def __call__(self, l=1):
-        o = np.zeros((l, self.n), dtype=np.float32)
+        o = torch.zeros((l, self.n)).float().to(self.device)
         for i in range(l):
-            k = np.random.randint(0, self.n)
-            s = np.random.choice(self.n, k, replace=False) # It is error-prone but is not important
+            k = torch.randint(1, self.n, (1,)).to(self.device)[0]
+            s = torch.randperm(self.n)[:k] # It is error-prone but is not important
             o[i, s] = 1.0
         return o
 
@@ -27,7 +27,9 @@ class DataHandler:
         return bundles, vf(bundles)
 
     def __getitem__(self, key):
-        if key in range(self.N):
+        if isinstance(key, int) and key in range(self.N):
+            return self.R[key]
+        elif isinstance(key, slice):
             return self.R[key]
         raise ValueError(f"Key {key} is not in range!")
 
@@ -36,4 +38,7 @@ class DataHandler:
             vf = self.value_functions[i]
             X, y = self.R[i]
             newX, newy = qs, vf(qs)
-            self.R[i] = np.vstack([X, newX]), np.vstack([y, newy])
+            self.R[i] = torch.vstack((X, newX)), torch.vstack((y, newy))
+
+    def get_query_shape(self):
+        return [b_i.shape for b_i, _ in self.R]

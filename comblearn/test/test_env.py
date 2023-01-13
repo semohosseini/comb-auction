@@ -12,5 +12,4 @@ def test_data_handler():
     m = 10
     vfs = [DSFValueFunction(list(range(m)), 100, [3, 2], 500), SumValueFunction(list(range(m)))]
     dh = DataHandler(list(range(m)), 2, vfs, 100)
-    logging.info(dh.R[0])
-    assert len(dh.R[0]) == 100
+    assert len(dh.R[0][0]) == 100

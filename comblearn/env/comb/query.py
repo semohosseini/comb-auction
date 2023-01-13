@@ -6,17 +6,17 @@ class NextQueryGenerator:
         self.m = m
         self.n = n
 
-    def __call__(self, value_functions, datasets, lr=0.001, epochs=1000, max_retries=10):
+    def __call__(self, value_functions, datasets, lr=0.001, epochs=1000, delta=0.001, sample_rate=10, max_retries=10):
         i = 1
         for vf, data in zip(value_functions, datasets):
             X, y = data
             learner = DSFLearner(vf, lr, X, y)
             loss = learner(epochs)
-            i += 1
             logging.info(f"Bidder {i}, loss: {loss}")
+            i += 1
 
         optimizer = RandGreedyOptimizer(self.m, self.n, value_functions)
-        optimizer.optimize()
+        optimizer.optimize(delta, sample_rate)
         alloc = optimizer.generate_allocation()
         i = 0
         # HINT: This part is not the same as MLCA. 

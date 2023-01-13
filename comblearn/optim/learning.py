@@ -4,19 +4,18 @@ from ..data import DSFValueFunction
 
 class DSFLearner:
     def __init__(self, dsf_vf, lr, x_data, y_data):
-        self.vf = dsf_vf
+        self.dsf = dsf_vf.dsf
         self.device = dsf_vf.device
         self.criterion = torch.nn.MSELoss()
-        self.optimizer = torch.optim.SGD(self.vf.parameters(), lr=lr)
-        self.x_data = torch.tensor(x_data).float().to(self.device)
-        self.y_data = torch.tensor(y_data).float().to(self.device)
+        self.optimizer = torch.optim.SGD(self.dsf.parameters(), lr=lr)
+        self.x_data = x_data.to(self.device)
+        self.y_data = y_data.to(self.device)
 
     def __call__(self, epochs=1000):
-        for _ in range(epochs): 
+        for _ in range(epochs):
             y_pred = self.dsf(self.x_data)
-            loss = self.criterion(y_pred, self.y_data)
-        
             self.optimizer.zero_grad()
-            loss.backward()
+            loss = self.criterion(y_pred, self.y_data)        
+            loss.backward(retain_graph=True)
             self.optimizer.step()
         return loss.item()
