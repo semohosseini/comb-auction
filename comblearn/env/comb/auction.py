@@ -81,7 +81,10 @@ class CombinatorialAuction():
             optimizer.optimize(delta, sample_rate)
             allocation_i = optimizer.generate_allocation()
             social_welfare_i = self.social_welfare(value_functions_i, allocation_i)
-            payments[i, 0] = social_welfare_i - social_welfare_opt
+            allocation_o_i = allocation[:i] + allocation[i+1:]
+            social_welfare_opt_i = self.social_welfare(value_functions_i, allocation_o_i)
+            payments[i, 0] = social_welfare_i - social_welfare_opt_i
+        payments.relu_()
         
         logging.info(f"Payments: {payments.squeeze()}")
 
