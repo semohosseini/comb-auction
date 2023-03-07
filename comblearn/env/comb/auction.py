@@ -9,7 +9,7 @@ import torch
 import logging
 
 class CombinatorialAuction():
-    def __init__(self, bidders, items, true_vfs, learn_vfs, q_init, q_max, device='cuda' if torch.cuda.is_available() else 'cpu') -> None:
+    def __init__(self, bidders, items, true_vfs, learn_vfs, q_init, q_max, device='cuda' if torch.cuda.is_available() else 'cpu', custom_optim=None) -> None:
         self.q_init = q_init
         self.q_max = q_max
         self.bidders = bidders
@@ -17,6 +17,7 @@ class CombinatorialAuction():
         self.data_handler = DataHandler(items, len(bidders), true_vfs, q_init)
         self.value_functions = learn_vfs
         self.device = device
+        self.custom_optim = custom_optim
 
     def social_welfare(self, value_functions, allocation):
         return torch.sum(torch.tensor([vf(alloc) for vf, alloc in zip(value_functions, allocation)]).to(self.device))
@@ -33,12 +34,12 @@ class CombinatorialAuction():
         while t <= T:
             logging.info(f"Step: {t}/{T}, Query shapes: {self.data_handler.get_query_shape()}")
             logging.info("Generating main query...")
-            next_queries = NextQueryGenerator(m, n)
+            next_queries = NextQueryGenerator(m, n, self.custom_optim)
             new_queries = next_queries(self.value_functions, self.data_handler, epochs=epochs, lr=lr, delta=delta, sample_rate=sample_rate)
             logging.info("Main query generated.")
 
             logging.info("Generating marginal queries...")
-            next_queries = NextQueryGenerator(m, n-1)
+            next_queries = NextQueryGenerator(m, n-1, self.custom_optim)
             for i in range(n):
                 value_functions_i = self.value_functions[:i] + self.value_functions[i+1:]
                 R_i = self.data_handler[:i] + self.data_handler[i+1:]
@@ -59,6 +60,58 @@ class CombinatorialAuction():
         i = 0
         logging.info("Final allocation calculation...")
         for vf, data in zip(self.value_functions, self.data_handler):
+            X, y = data
+            learner = DSFLearner(vf, lr, X, y, self.custom_optim)
+            loss = learner(epochs)
+            i += 1
+            logging.info(f"Bidder {i}, loss: {loss}")
+
+        optimizer = RandGreedyOptimizer(m, n, self.value_functions)
+        optimizer.optimize(delta, sample_rate)
+        allocation = optimizer.generate_allocation()
+        social_welfare_opt = self.social_welfare(self.value_functions, allocation)
+        logging.info(f"Optimal allocation: {allocation}")
+        logging.info(f"Social welfare: {social_welfare_opt}")
+
+        # Payment calculation
+        logging.info("Payment calculation..")
+        payments = torch.zeros((n, 1)).to(self.device)
+        for i in range(n):
+            value_functions_i = self.value_functions[:i] + self.value_functions[i+1:]
+            optimizer = RandGreedyOptimizer(m, n-1, value_functions_i)
+            optimizer.optimize(delta, sample_rate)
+            allocation_i = optimizer.generate_allocation()
+            social_welfare_i = self.social_welfare(value_functions_i, allocation_i)
+            allocation_o_i = allocation[:i] + allocation[i+1:]
+            social_welfare_opt_i = self.social_welfare(value_functions_i, allocation_o_i)
+            payments[i, 0] = social_welfare_i - social_welfare_opt_i
+        payments.relu_()
+        
+        logging.info(f"Payments: {payments.squeeze()}")
+
+        return allocation, payments.squeeze()
+
+
+class CombinatorialAuctionWithData():
+    def __init__(self, bidders, items, dataset, learn_vfs, device='cuda' if torch.cuda.is_available() else 'cpu') -> None:
+        self.bidders = bidders
+        self.items = items
+        self.dataset = dataset
+        self.value_functions = learn_vfs
+        self.device = device
+
+    def social_welfare(self, value_functions, allocation):
+        return torch.sum(torch.tensor([vf(alloc) for vf, alloc in zip(value_functions, allocation)]).to(self.device))
+
+    def run(self, epochs=1000, lr=0.001, delta=0.001, sample_rate=10):
+        # Parameters
+        m = len(self.items)
+        n = len(self.bidders)
+
+        # Final allocation
+        i = 0
+        logging.info("Allocation calculation...")
+        for vf, data in zip(self.value_functions, self.dataset):
             X, y = data
             learner = DSFLearner(vf, lr, X, y)
             loss = learner(epochs)

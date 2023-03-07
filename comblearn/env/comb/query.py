@@ -2,15 +2,16 @@ from ...optim import DSFLearner, RandGreedyOptimizer
 import logging
 
 class NextQueryGenerator:
-    def __init__(self, m, n):
+    def __init__(self, m, n, custom_optim=None):
         self.m = m
         self.n = n
+        self.custom_optim=custom_optim
 
     def __call__(self, value_functions, datasets, lr=0.001, epochs=1000, delta=0.001, sample_rate=10, max_retries=10):
         i = 1
         for vf, data in zip(value_functions, datasets):
             X, y = data
-            learner = DSFLearner(vf, lr, X, y)
+            learner = DSFLearner(vf, lr, X, y, self.custom_optim)
             loss = learner(epochs)
             logging.info(f"Bidder {i}, loss: {loss}")
             i += 1
