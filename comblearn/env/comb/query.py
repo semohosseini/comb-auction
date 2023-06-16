@@ -7,13 +7,15 @@ class NextQueryGenerator:
         self.n = n
         self.custom_optim=custom_optim
 
-    def __call__(self, value_functions, datasets, lr=0.001, epochs=1000, delta=0.001, sample_rate=10, max_retries=10):
+    def __call__(self, value_functions, datasets, lr=0.001, epochs=1000, delta=0.001, sample_rate=10, max_retries=10, writer=None, t=-1):
         i = 1
         for vf, data in zip(value_functions, datasets):
             X, y = data
             learner = DSFLearner(vf, lr, X, y, self.custom_optim)
             loss = learner(epochs)
             logging.info(f"Bidder {i}, loss: {loss}")
+            if writer:
+                writer.add_scalar(f"Bidder {i} loss", loss, t)
             i += 1
 
         optimizer = RandGreedyOptimizer(self.m, self.n, value_functions)

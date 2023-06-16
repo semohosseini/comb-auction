@@ -22,7 +22,7 @@ class CombinatorialAuction():
     def social_welfare(self, value_functions, allocation):
         return torch.sum(torch.tensor([vf(alloc) for vf, alloc in zip(value_functions, allocation)]).to(self.device))
 
-    def run(self, epochs=1000, lr=0.001, delta=0.001, sample_rate=10):
+    def run(self, epochs=1000, lr=0.001, delta=0.001, sample_rate=10, writer=None):
         # Parameters
         T = (self.q_max - self.q_init) // len(self.bidders)
         t = 1
@@ -35,7 +35,9 @@ class CombinatorialAuction():
             logging.info(f"Step: {t}/{T}, Query shapes: {self.data_handler.get_query_shape()}")
             logging.info("Generating main query...")
             next_queries = NextQueryGenerator(m, n, self.custom_optim)
-            new_queries = next_queries(self.value_functions, self.data_handler, epochs=epochs, lr=lr, delta=delta, sample_rate=sample_rate)
+            new_queries = next_queries(self.value_functions, self.data_handler, epochs=epochs, lr=lr, delta=delta, sample_rate=sample_rate, writer=writer, t=t)
+            if writer:
+                writer.add_scalar("Social Welfare", self.social_welfare(self.value_functions, new_queries), t)
             logging.info("Main query generated.")
 
             logging.info("Generating marginal queries...")
@@ -65,11 +67,15 @@ class CombinatorialAuction():
             loss = learner(epochs)
             i += 1
             logging.info(f"Bidder {i}, loss: {loss}")
+            if writer:
+                writer.add_scalar(f"Bidder {i} loss", loss, T+1)
 
         optimizer = RandGreedyOptimizer(m, n, self.value_functions)
         optimizer.optimize(delta, sample_rate)
         allocation = optimizer.generate_allocation()
         social_welfare_opt = self.social_welfare(self.value_functions, allocation)
+        if writer:
+            writer.add_scalar("Social Welfare", social_welfare_opt, T+1)
         logging.info(f"Optimal allocation: {allocation}")
         logging.info(f"Social welfare: {social_welfare_opt}")
 
