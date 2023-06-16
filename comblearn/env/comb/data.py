@@ -1,4 +1,10 @@
+from typing import List
 import torch
+
+import logging
+
+from .bidder import Bidder
+from .query import NextQueryGenerator
 
 class BundleGenerator:
     def __init__(self, items, device='cuda' if torch.cuda.is_available() else 'cpu'):
@@ -15,30 +21,30 @@ class BundleGenerator:
 
 
 class DataHandler:
-    def __init__(self, items, bidder_no, vfs, q_init):
-        self.N = bidder_no
-        assert len(vfs) == bidder_no
-        self.value_functions = vfs
+    def __init__(self, items, bidders: List[Bidder], cfg):
+        self.config = cfg
+        self.items = items
+        self.bidders = bidders
         self.bundle_generator = BundleGenerator(items)
-        self.R = [self._generate_initial_data(vf, q_init) for vf in self.value_functions]
+        self.R = {}
+        for bidder in self.bidders:
+            self.R[bidder.name] = self._generate_initial_data(bidder, self.config['q-init'])
 
-    def _generate_initial_data(self, vf, q: int):
+    def _generate_initial_data(self, b, q: int):
         bundles = self.bundle_generator(q)
-        return bundles, vf(bundles)
+        return bundles, b(bundles)
 
     def __getitem__(self, key):
-        if isinstance(key, int) and key in range(self.N):
-            return self.R[key]
-        elif isinstance(key, slice):
+        if isinstance(key, str) and key in self.R:
             return self.R[key]
         raise ValueError(f"Key {key} is not in range!")
 
     def add_queries(self, list_queries):
-        for i, qs in enumerate(list_queries):
-            vf = self.value_functions[i]
-            X, y = self.R[i]
-            newX, newy = qs, vf(qs)
-            self.R[i] = torch.vstack((X, newX)), torch.vstack((y, newy))
+        for name, qs in enumerate(list_queries):
+            bidder = self.bidders[name]
+            X, y = self.R[name]
+            newX, newy = qs, bidder(qs)
+            self.R[bidder] = torch.vstack((X, newX)), torch.vstack((y, newy))
 
     def get_query_shape(self):
-        return [b_i.shape for b_i, _ in self.R]
+        return {n: b_i[0].shape for n, b_i in self.R.items()}        

@@ -12,6 +12,9 @@ class Optimizer:
 
     def optimize(self):
         raise NotImplementedError("Optimization function should be implemented!")
+    
+    def generate_allocation(self):
+        raise NotImplementedError("Generate Allocation function should be implemented!")
 
 
 class RandGreedyOptimizer(Optimizer):
@@ -57,7 +60,7 @@ class RandGreedyOptimizer(Optimizer):
 class GradientAscentOptimizer(Optimizer):
     def __init__(self, m, n, ws, eps):
         super().__init__(m, n, ws)
-        self.y = torch.zeros((m, n)).to(self.device)
+        self.y = torch.zeros((m, n)).float().to(self.device)
         self.eps = eps
 
     def _maximize_dsf(self, dsf, lr, T, bs=10):

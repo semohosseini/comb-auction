@@ -1,28 +1,32 @@
-from comblearn.env import DataHandler
+from comblearn.env import DataHandler, Bidder, LearningHandler, DataHandler
 from comblearn.data import DSFValueFunction
 from comblearn.optim import DSFLearner
 
 import logging
+import comblearn
+import yaml
 
-def test_learn_dsf():
-    m = 5
-    n = 3
-    items  = list(range(5))
-    lr = 0.001
-    epochs = 1000
-    vfs = [DSFValueFunction(items, 100, [2, 3, 2], 500), 
-           DSFValueFunction(items, 100, [2, 3, 2], 500), 
-           DSFValueFunction(items, 100, [2, 3, 2], 500)]
-    dh = DataHandler(items, n, vfs, 500)
+def t_learn_dsf():
+    with open("config/config_rg.yaml") as fp:   
+        cfg = yaml.load(fp, Loader=yaml.FullLoader)['auction']
 
-    vfs_l = [DSFValueFunction(items, 110, [2, 4], 300), 
-             DSFValueFunction(items, 110, [2, 4], 300), 
-             DSFValueFunction(items, 110, [2, 4], 300)]
-    logging.info(f"Query shape: {dh.get_query_shape()}")
-    i = 1
-    for vf, data in zip(vfs_l, dh):
-        X, y = data
-        learner = DSFLearner(vf, lr, X, y)
-        loss = learner(epochs)
-        logging.info(f"Bidder {i}, loss: {loss}")
-        i += 1
+    data_config = cfg['data']
+    learning_config = cfg['learning']
+    device = cfg['device']
+    items = cfg['items']
+    bidders = []
+    for bcfg in cfg['bidders']:
+        vf_cls = eval(bcfg['cls'])
+        vf = vf_cls(items, bcfg['max-out'], bcfg['hidden-sizes'], bcfg['alpha']).to(device)
+        bidders.append(Bidder(bcfg['name'], vf))
+
+    data_handler = DataHandler(items, bidders, data_config)
+    
+    models = {}
+    for mcfg in cfg['learning']['models']:
+        vf_cls = eval(bcfg['cls'])
+        vf = vf_cls(items, mcfg['max-out'], mcfg['hidden-sizes'], mcfg['alpha']).to(device)
+        models[mcfg['name']] = vf
+    learning_handler = LearningHandler(models, data_handler, learning_config)
+
+    learning_handler.learn()

@@ -21,7 +21,7 @@ class MySCMM(nn.Module):
 def social_welfare(ws, allocation):
     return torch.sum(torch.tensor([w(alloc) for w, alloc in zip(ws, allocation)]).to(device))
 
-def test_optimizers():
+def toptimizers():
     m = 10
     n = 4
     ws = [MySCMM(m, 5).to(device), MySCMM(m, 5).to(device), MySCMM(m, 5).to(device), MySCMM(m, 5).to(device)]

@@ -2,39 +2,26 @@ from ...optim import DSFLearner, RandGreedyOptimizer
 import logging
 
 class NextQueryGenerator:
-    def __init__(self, m, n, custom_optim=None):
-        self.m = m
-        self.n = n
-        self.custom_optim=custom_optim
+    def __init__(self, cfg, dh, lh, ah):
+        self.config = cfg
+        self.data_handler = dh
+        self.learning_handler = lh
+        self.allocation_handler = ah
 
-    def __call__(self, value_functions, datasets, lr=0.001, epochs=1000, delta=0.001, sample_rate=10, max_retries=10, writer=None, t=-1):
-        i = 1
-        for vf, data in zip(value_functions, datasets):
-            X, y = data
-            learner = DSFLearner(vf, lr, X, y, self.custom_optim)
-            loss = learner(epochs)
-            logging.info(f"Bidder {i}, loss: {loss}")
-            if writer:
-                writer.add_scalar(f"Bidder {i} loss", loss, t)
-            i += 1
+    def __call__(self, except_key=None):
+        self.learning_handler.learn()
 
-        optimizer = RandGreedyOptimizer(self.m, self.n, value_functions)
-        optimizer.optimize(delta, sample_rate)
-        alloc = optimizer.generate_allocation()
-        i = 0
-        # HINT: This part is not the same as MLCA. 
-        # It may be faster but sacrifices the optimality in some situations.
-        for query, data in zip(alloc, datasets):
-            X, y = data
+        alloc, _, optimizer = self.allocation_handler.allocate(except_key=except_key, return_optim=True)
+        for bn in alloc:
+            X, _ = self.data_handler[bn]
             j = 0
-            while j < max_retries:
-                if any((query == X[:]).all(1)):
+            while j < self.config['max-retries']:
+                if any((alloc[bn] == X[:]).all(1)):
                     new_alloc = optimizer.generate_allocation()
-                    if not any((new_alloc[i] == X[:]).all(1)):
-                        alloc[i] = new_alloc[i]
+                    if not any((new_alloc[bn] == X[:]).all(1)):
+                        alloc[bn] = new_alloc[bn]
                         break
                 else:
                     break
                 j += 1
-            i += 1
         return alloc
