@@ -6,7 +6,7 @@ import logging
 import comblearn
 import yaml
 
-def t_learn_dsf():
+def test_learn_dsf():
     with open("config/config_rg.yaml") as fp:   
         cfg = yaml.load(fp, Loader=yaml.FullLoader)['auction']
 

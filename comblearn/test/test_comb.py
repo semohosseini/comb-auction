@@ -5,7 +5,7 @@ import comblearn
 import yaml
 import logging
 
-def tt_comb_rg():
+def test_comb_rg():
     # Configuration
     with open("config/config_rg.yaml") as fp:
         cfg = yaml.load(fp, Loader=yaml.FullLoader)
