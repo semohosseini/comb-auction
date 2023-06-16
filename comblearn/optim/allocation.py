@@ -1,11 +1,12 @@
 import torch
+from ..nn.dsf import DSFWrapper
 
 import logging
 
 class Optimizer:
     def __init__(self, m, n, ws, device='cuda' if torch.cuda.is_available() else 'cpu'):
-        self.m = m
-        self.n = n
+        self.m = m  # Item no.
+        self.n = n  # Bidder no.
         self.ws = ws
         self.device = device
 
@@ -51,3 +52,47 @@ class RandGreedyOptimizer(Optimizer):
     def generate_allocation(self):
         output = torch.tensor([torch.multinomial(self.y[j], 1) for j in range(self.m)]).to(self.device)
         return [(output == j).float().to(self.device) for j in range(self.n)]
+    
+
+class GradientAscentOptimizer(Optimizer):
+    def __init__(self, m, n, ws, eps):
+        super().__init__(m, n, ws)
+        self.y = torch.zeros((m, n)).to(self.device)
+        self.eps = eps
+
+    def _maximize_dsf(self, dsf, lr, T, bs=10):
+        wrapper = DSFWrapper(self.m, dsf).to(self.device)
+        last_pred = -1.0
+
+        for i in range(T // bs):
+            if i % 1000 == 0:
+                logging.info(f"Step {i}/{T // bs}")
+            
+            m = torch.ones((bs, self.m)).float().to(self.device)
+            pred = wrapper(m).mean()
+            if i % 1000 == 0:
+                logging.info(f"Output: {pred.item()}")
+
+            if pred == last_pred:
+                break
+            else:
+                last_pred = pred
+            
+            pred.backward()
+            g = wrapper.weights.grad
+            with torch.no_grad():
+                wrapper.weights.add_(lr * g)
+                wrapper.weights.abs_()
+        
+        return wrapper.weights.clone().detach()
+    
+    def optimize(self, lr=2e-5, bs=10):
+        T = int((self.m / self.eps) ** 2)
+        for i in range(self.n):
+            self.y[:, i] = self._maximize_dsf(self.ws[i], lr, T, bs)
+    
+    def generate_allocation(self):
+        output = torch.tensor([torch.multinomial(self.y[j], 1) for j in range(self.m)]).to(self.device)
+        return [(output == i).float().to(self.device) for i in range(self.n)]
+
+

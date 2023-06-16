@@ -1,6 +1,7 @@
 from typing import Union, List
 from numbers import Number
 import torch.nn as nn
+import torch
 from .layers import PosLinear, MiLU
 
 class SCMM(nn.Module):
@@ -31,3 +32,14 @@ class DSF(nn.Module): # Deep Submodular Function
         for layer in self.layers:
             x = layer(x)
         return x
+    
+
+class DSFWrapper(nn.Module):
+    def __init__(self, n, dsf: DSF):
+        super().__init__()
+        self.weights = nn.Parameter(torch.zeros((n, ))).float()
+        self.submodular = dsf
+
+    def forward(self, x):
+        mask = (x > 0).float()
+        return self.submodular(mask * self.weights)
