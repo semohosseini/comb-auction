@@ -86,6 +86,8 @@ class GradientAscentOptimizer(Optimizer):
             with torch.no_grad():
                 wrapper.weights.add_(lr * g)
                 wrapper.weights.abs_()
+                wrapper.weights.clamp_max_(1)
+
         
         return wrapper.weights.clone().detach()
     
