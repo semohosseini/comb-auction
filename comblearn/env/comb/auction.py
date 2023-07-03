@@ -19,18 +19,17 @@ class CombinatorialAuction():
         self.device = cfg['device']
         self.items = cfg['items']
         self.bidders = []
-        import comblearn
         for bcfg in cfg['bidders']:
             vf_cls = eval(bcfg['cls'])
-            vf = vf_cls(self.items, bcfg['max-out'], bcfg['hidden-sizes'], bcfg['alpha']).to(self.device)
+            vf = vf_cls(self.items, *bcfg['args']).to(self.device)
             self.bidders.append(Bidder(bcfg['name'], vf))
 
         self.data_handler = DataHandler(self.items, self.bidders, self.data_config)
         
         models = {}
         for mcfg in cfg['learning']['models']:
-            vf_cls = eval(bcfg['cls'])
-            vf = vf_cls(self.items, mcfg['max-out'], mcfg['hidden-sizes'], mcfg['alpha']).to(self.device)
+            vf_cls = eval(mcfg['cls'])
+            vf = vf_cls(self.items, *mcfg['args']).to(self.device)
             models[mcfg['name']] = vf
         self.learning_handler = LearningHandler(models, self.data_handler, self.learning_config)
 
@@ -73,7 +72,9 @@ class CombinatorialAuction():
         allocation, social_welfare = self.allocation_handler.allocate()
         if writer:
             writer.add_scalar("Social Welfare", social_welfare, T+1)
-        logging.info(f"Optimal allocation: {allocation}")
+        logging.info(f"Optimal allocation:")
+        for k in allocation:
+            logging.info(f"({k, allocation[k]})")
         logging.info(f"Social welfare: {social_welfare}")
 
         # Payment calculation

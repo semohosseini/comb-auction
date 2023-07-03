@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 import torch.nn.functional as F
-from ..nn import DSF
+from ..nn import DSF, Modular
 
 class ValueFunction(nn.Module):
     def __init__(self, items, device='cuda' if torch.cuda.is_available() else 'cpu'):
@@ -19,6 +19,15 @@ class SumValueFunction(ValueFunction):
 
     def forward(self, bundle: torch.Tensor):
         return bundle.sum(axis=-1)
+
+
+class ModularValueFunction(ValueFunction):
+    def __init__(self, items, max_val, device='cuda' if torch.cuda.is_available() else 'cpu'):
+        super().__init__(items, device)
+        self.mod = Modular(items, max_val).to(device)
+
+    def forward(self, bundle):  # `bundle` can be a batch of bundles
+        return self.mod(bundle)
 
 
 class DSFValueFunction(ValueFunction):

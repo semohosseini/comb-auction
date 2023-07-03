@@ -4,29 +4,19 @@ auction:
   bidders: 
     - name: 'ali'
       cls: 'comblearn.data.DSFValueFunction'
-      max-out: 100
-      hidden-sizes: [2, 3, 2]
-      alpha: 500
+      args: [100, [2, 3, 2], 500]
     - name: 'hassan'
       cls: 'comblearn.data.DSFValueFunction'
-      max-out: 100
-      hidden-sizes: [2, 3, 2]
-      alpha: 500
+      args: [100, [2, 3, 2], 500]
     - name: 'mahdi'
       cls: 'comblearn.data.DSFValueFunction'
-      max-out: 100
-      hidden-sizes: [2, 3, 2]
-      alpha: 500
+      args: [100, [2, 3, 2], 500]
     - name: 'jafar'
       cls: 'comblearn.data.DSFValueFunction'
-      max-out: 100
-      hidden-sizes: [2, 3, 2]
-      alpha: 500
+      args: [100, [2, 3, 2], 500]
     - name: 'arash'
       cls: 'comblearn.data.DSFValueFunction'
-      max-out: 100
-      hidden-sizes: [2, 3, 2]
-      alpha: 500
+      args: [100, [2, 3, 2], 500]
   
   items: [0, 1, 2, 3, 4, 5, 6, 7]
 
@@ -49,29 +39,19 @@ auction:
     models:
       - name: 'ali'
         cls: 'comblearn.data.DSFValueFunction'
-        max-out: 110
-        hidden-sizes: [2, 4]
-        alpha: 300
+        args: [110, [2, 4], 300]
       - name: 'hassan'
         cls: 'comblearn.data.DSFValueFunction'
-        max-out: 110
-        hidden-sizes: [2, 4]
-        alpha: 300
+        args: [110, [2, 4], 300]
       - name: 'mahdi'
         cls: 'comblearn.data.DSFValueFunction'
-        max-out: 110
-        hidden-sizes: [2, 4]
-        alpha: 300
+        args: [110, [2, 4], 300]
       - name: 'jafar'
         cls: 'comblearn.data.DSFValueFunction'
-        max-out: 110
-        hidden-sizes: [2, 4]
-        alpha: 300
+        args: [110, [2, 4], 300]
       - name: 'arash'
         cls: 'comblearn.data.DSFValueFunction'
-        max-out: 110
-        hidden-sizes: [2, 4]
-        alpha: 300
+        args: [110, [2, 4], 300]
 
   allocation:
     scheme: 'GradientAscent'

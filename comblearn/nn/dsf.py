@@ -3,6 +3,18 @@ from numbers import Number
 import torch.nn as nn
 import torch
 from .layers import PosLinear, MiLU
+import logging
+
+class Modular(nn.Module):
+    def __init__(self, items, max_val: int):
+        super(Modular, self).__init__()
+        k = len(items)
+        self.w = nn.Parameter(torch.randint(0, max_val, (k, 1)).float())
+        logging.info(f"{self.w.squeeze()}")
+
+    def forward(self, x):
+        return torch.matmul(x, self.w)
+
 
 class SCMM(nn.Module):
     def __init__(self, in_dim, out_dim, alpha: float = 1.0):

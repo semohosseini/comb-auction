@@ -18,7 +18,7 @@ def test_data_handler():
     bidders = []
     for bcfg in cfg['bidders']:
         vf_cls = eval(bcfg['cls'])
-        vf = vf_cls(cfg['items'], bcfg['max-out'], bcfg['hidden-sizes'], bcfg['alpha'])
+        vf = vf_cls(cfg['items'], *bcfg['args'])
         bidders.append(Bidder(bcfg['name'], vf))
 
     dh = DataHandler(cfg['items'], bidders, cfg['data'])

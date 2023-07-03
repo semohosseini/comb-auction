@@ -30,7 +30,7 @@ class DataHandler:
         for bidder in self.bidders:
             self.R[bidder.name] = self._generate_initial_data(bidder, self.config['q-init'])
 
-    def _generate_initial_data(self, b, q: int):
+    def _generate_initial_data(self, b: Bidder, q: int):
         bundles = self.bundle_generator(q)
         return bundles, b(bundles)
 
