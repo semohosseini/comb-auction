@@ -1,5 +1,7 @@
 import torch
 import comblearn
+import logging
+from ...optim.allocation import BruteForceOptimizer
 
 class AllocationHandler:
     def __init__(self, items, models, cfg):
@@ -7,7 +9,7 @@ class AllocationHandler:
         self.models = models
         self.items = items
 
-    def allocate(self, except_key=None, return_optim=False):
+    def allocate(self, except_key=None):
         m = len(self.items)
         n = len(self.models)
 
@@ -36,9 +38,6 @@ class AllocationHandler:
 
         if except_key and deleted:
             self.models[except_key] = except_model
-
-        if return_optim:
-            return allocation, social_welfare, optimizer
         
         return allocation, social_welfare
     

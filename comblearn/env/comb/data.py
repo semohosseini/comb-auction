@@ -6,6 +6,8 @@ import logging
 from .bidder import Bidder
 from .query import NextQueryGenerator
 
+from ...optim import BruteForceOptimizer
+
 class BundleGenerator:
     def __init__(self, items, device='cuda' if torch.cuda.is_available() else 'cpu'):
         self.n = len(items)
@@ -29,6 +31,24 @@ class DataHandler:
         self.R = {}
         for bidder in self.bidders:
             self.R[bidder.name] = self._generate_initial_data(bidder, self.config['q-init'])
+
+        self.opt_sw = None
+        if 'brute-force' in self.config and self.config['brute-force']:
+            self.get_optimal()
+            print('Brute Force Search: done.')
+            print(f'Optimal Social Welfare: {self.opt_sw}')
+
+    def get_optimal(self):
+        m = len(self.items)
+        n = len(self.bidders)
+        bs = [b.name for b in self.bidders]
+        ws = [b.vf for b in self.bidders]
+
+        if not self.opt_sw:
+            optim_aux = BruteForceOptimizer(m, n, ws)
+            opt_alloc = optim_aux.optimize()
+            self.opt_sw = optim_aux._social_welfare(opt_alloc)
+        return self.opt_sw
 
     def _generate_initial_data(self, b: Bidder, q: int):
         bundles = self.bundle_generator(q)

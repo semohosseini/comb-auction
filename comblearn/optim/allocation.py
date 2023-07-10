@@ -17,6 +17,40 @@ class Optimizer:
         raise NotImplementedError("Generate Allocation function should be implemented!")
 
 
+class BruteForceOptimizer(Optimizer):
+    def __init__(self, m, n, ws, device='cuda' if torch.cuda.is_available() else 'cpu'):
+        super().__init__(m, n, ws, device)
+        self.y = torch.zeros(m).to(self.device)
+        self.max_welfare = -1
+
+    def _brute_force(self, k):
+        if k == self.m:
+            yield []
+            return
+        
+        for i in range(self.n):
+            for l in self._brute_force(k + 1):
+                yield [i] + l
+
+    def _social_welfare(self, alloc):
+        return torch.sum(torch.tensor([ws(ac) for ws, ac in zip(self.ws, alloc)]))
+    
+    def to_alloc(self, x):
+        return [(x == j).float().to(self.device) for j in range(self.n)]
+
+    def optimize(self):
+        for x in self._brute_force(0):
+            x = torch.tensor(x).to(self.device)
+            sw = self._social_welfare(self.to_alloc(x))
+            if sw > self.max_welfare:
+                self.max_welfare = sw
+                self.y = x
+        return self.generate_allocation()
+
+    def generate_allocation(self):
+        return self.to_alloc(self.y)
+
+
 class RandGreedyOptimizer(Optimizer):
     def __init__(self, m, n, ws):
         super().__init__(m, n, ws)
