@@ -1,0 +1,65 @@
+# Configuration for Auction running Rand Greedy Algorithm
+
+auction:
+  bidders: 
+    - name: 'ali'
+      cls: 'comblearn.data.ModularValueFunction'
+      args: [7]
+    - name: 'hassan'
+      cls: 'comblearn.data.ModularValueFunction'
+      args: [7]
+    - name: 'mahdi'
+      cls: 'comblearn.data.ModularValueFunction'
+      args: [7]
+    - name: 'jafar'
+      cls: 'comblearn.data.ModularValueFunction'
+      args: [7]
+    - name: 'arash'
+      cls: 'comblearn.data.ModularValueFunction'
+      args: [7]
+  
+  items: [0, 1, 2, 3, 4, 5, 6, 7]
+
+  data:
+    q-init: 500
+    q-max: 505
+    brute-force: true
+
+
+  query:
+    marginal: False
+    max-retries: 10
+
+  device: cuda
+
+
+  learning:
+    cls: 'comblearn.optim.learning.DSFLearner'
+    optimizer: torch.optim.SGD
+    learning-rate: 0.005
+    epochs: 2000
+    models:
+      - name: 'ali'
+        cls: 'comblearn.data.DSFValueFunction'
+        args: [110, [3], 300]
+      - name: 'hassan'
+        cls: 'comblearn.data.DSFValueFunction'
+        args: [110, [3], 300]
+      - name: 'mahdi'
+        cls: 'comblearn.data.DSFValueFunction'
+        args: [110, [3], 300]
+      - name: 'jafar'
+        cls: 'comblearn.data.DSFValueFunction'
+        args: [110, [3], 300]
+      - name: 'arash'
+        cls: 'comblearn.data.DSFValueFunction'
+        args: [110, [3], 300]
+
+  allocation:
+    scheme: 'RandGreedy'
+    optimizer: 'comblearn.optim.RandGreedyOptimizer'
+    delta: 0.005
+    sample_rate: 5
+
+
+
