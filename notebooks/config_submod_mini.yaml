@@ -12,7 +12,7 @@ auction:
       cls: 'comblearn.data.DSFValueFunction'
       args: [100, [2, 3, 2], 500]
   
-  items: [0, 1, 2, 3, 4, 5, 6, 7]
+  items: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
   data:
     q-init: 500

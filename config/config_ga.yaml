@@ -23,6 +23,7 @@ auction:
   data:
     q-init: 500
     q-max: 510
+    brute-force: False
 
   query:
     marginal: False
