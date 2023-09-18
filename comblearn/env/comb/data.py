@@ -29,8 +29,14 @@ class DataHandler:
         self.bidders = bidders
         self.bundle_generator = BundleGenerator(items)
         self.R = {}
+        #for bidder in self.bidders:
+            #self.R[bidder.name] = self._generate_initial_data(bidder, self.config['q-init'])
+        q = self.config['q-init']
+        bundles = self.bundle_generator(q)
         for bidder in self.bidders:
-            self.R[bidder.name] = self._generate_initial_data(bidder, self.config['q-init'])
+            self.R[bidder.name] = bundles, bidder(bundles)
+
+            
 
         self.opt_sw = None
         if 'brute-force' in self.config and self.config['brute-force']:
@@ -49,6 +55,9 @@ class DataHandler:
             opt_alloc = optim_aux.optimize()
             self.opt_sw = optim_aux._social_welfare(opt_alloc)
         return self.opt_sw
+    
+    def get_R(self):
+        return self.R
 
     def _generate_initial_data(self, b: Bidder, q: int):
         bundles = self.bundle_generator(q)
