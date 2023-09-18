@@ -23,6 +23,9 @@ class MiLU(nn.Module): # Minimum Linear function
 
     def forward(self, input: Tensor) -> Tensor:
         return torch.minimum(input, self.alpha)
+        #s = nn.Sigmoid()
+        #return s(input)
+
 
     def extra_repr(self) -> str:
         inplace_str = 'inplace=True' if self.inplace else ''

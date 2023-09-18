@@ -17,14 +17,19 @@ class Modular(nn.Module):
 
 
 class SCMM(nn.Module):
-    def __init__(self, in_dim, out_dim, alpha: float = 1.0):
+    def __init__(self, in_dim, out_dim, alpha: float = 1.0, set_activation=True):
         super(SCMM, self).__init__()
+        self.set_activation = set_activation
         self.linear = PosLinear(in_dim, out_dim)
         self.activation = MiLU(alpha=alpha)
 
     def forward(self, x):
-        x = self.linear(x)
-        y_pred = self.activation(x)
+        y_pred = None
+        if self.set_activation:
+            x = self.linear(x)
+            y_pred = self.activation(x)
+        else:
+            y_pred = self.linear(x)
         return y_pred
 
 
@@ -38,7 +43,7 @@ class DSF(nn.Module): # Deep Submodular Function
         self.layers.append(SCMM(in_dim, hidden_sizes[0], alpha=alpha[0]))
         for i in range(1, len(hidden_sizes)):
             self.layers.append(SCMM(hidden_sizes[i-1], hidden_sizes[i], alpha=alpha[i]))
-        self.layers.append(SCMM(hidden_sizes[-1], out_dim, alpha=max_out))
+        self.layers.append(SCMM(hidden_sizes[-1], out_dim, alpha=max_out, set_activation=False))
 
     def forward(self, x):
         for layer in self.layers:
