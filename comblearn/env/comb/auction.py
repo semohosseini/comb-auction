@@ -42,6 +42,7 @@ class CombinatorialAuction():
         n = len(self.bidders)
 
         T = 0
+        new_queries = None
         
         if self.query_config['marginal']:
             T = (self.config['q-max'] - self.config['q-init']) // len(self.bidders)
@@ -66,16 +67,53 @@ class CombinatorialAuction():
                 self.data_handler.add_queries(new_queries)
                 t += 1
 
+
         # Final allocation
         logging.info("Final allocation calculation...")
         self.learning_handler.learn(writer=writer, step=T+1)
-        allocation, social_welfare = self.allocation_handler.allocate()
-        if writer:
-            writer.add_scalar("Social Welfare", social_welfare, T+1)
-        logging.info(f"Optimal allocation:")
-        for k in allocation:
-            logging.info(f"({k, allocation[k]})")
-        logging.info(f"Social welfare: {social_welfare}")
+        #allocation, social_welfare = self.allocation_handler.allocate()
+        #if writer:
+        #    writer.add_scalar("Social Welfare", social_welfare, T+1)
+        #logging.info(f"Optimal allocation:")
+        #for k in allocation:
+        #    logging.info(f"({k, allocation[k]})")
+        #logging.info(f"Social welfare: {social_welfare}")
+
+
+        #y = self.allocation_handler.allocate()
+        
+        k = 1
+        social_welfare = -1000
+        opt_alloc = None
+        for i in range(k):
+            s = 0
+            #output = torch.tensor([torch.multinomial(self.y[j], 1) for j in range(len(self.items))]).to(self.device)
+            #allocation = [(output == j).float().to(self.device) for j in range(3)]
+            allocation, h = self.allocation_handler.allocate()
+            for b in self.bidders:
+                s += b(allocation[b.name])
+            if s > social_welfare:
+                social_welfare = s
+                opt_alloc = allocation
+        return opt_alloc, social_welfare
+
+
+
+
+        bundles = self.data_handler.get_R()
+        q = self.config['q-init']
+        max = -10000000
+        max_allocation = None
+        for i in range(q):
+            s = 0
+            for b in self.bidders:
+                s = s + bundles[b.name][1][i]
+            if s > max : 
+                max = s
+                max_allocation
+
+
+
 
         # Payment calculation
         logging.info("Payment calculation..")

@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 from ..nn.dsf import DSFWrapper
 
 import logging
@@ -39,12 +40,17 @@ class BruteForceOptimizer(Optimizer):
         return [(x == j).float().to(self.device) for j in range(self.n)]
 
     def optimize(self):
+        iteration = 0
         for x in self._brute_force(0):
+            iteration += 1
             x = torch.tensor(x).to(self.device)
             sw = self._social_welfare(self.to_alloc(x))
+            if (iteration % 1000) == 0:
+               print(f'social welfare is: {sw}, iteration is: {iteration}')
             if sw > self.max_welfare:
                 self.max_welfare = sw
                 self.y = x
+        print(self.generate_allocation())
         return self.generate_allocation()
 
     def generate_allocation(self):
@@ -94,7 +100,10 @@ class RandGreedyOptimizer(Optimizer):
 class GradientAscentOptimizer(Optimizer):
     def __init__(self, m, n, ws, eps):
         super().__init__(m, n, ws)
-        self.y = torch.zeros((m, n)).float().to(self.device)
+        #temp = torch.zeros((m, n)).float().to(self.device)
+        temp = np.zeros((m, n))
+        temp = (self.projection_simplex_sort_2d(temp.T)).T
+        self.y = torch.from_numpy(temp).float().to('cuda:0')
         self.eps = eps
 
     def _maximize_dsf(self, dsf, lr, T, bs=10):
@@ -125,13 +134,64 @@ class GradientAscentOptimizer(Optimizer):
         
         return wrapper.weights.clone().detach()
     
-    def optimize(self, lr=2e-5, bs=10):
-        T = int((self.m / self.eps) ** 2)
-        for i in range(self.n):
-            self.y[:, i] = self._maximize_dsf(self.ws[i], lr, T, bs)
+    def optimize(self, lr=2e-4, bs=10, num_iterations=10000):
+        self.y.requires_grad = True
+        for i in range(num_iterations):
+            #print(f'iteration is: {i}')
+            #print(self.y)
+            s = torch.zeros(1).float().to(self.device)
+            for b in range(self.n):
+                s += self.ws[b](self.y[:,b])
+            self.y.retain_grad()
+            if(i % 10 == 0):
+                print(f'output is: {s.item()}, iteration is: {i}')
+            s.backward()
+            #print(self.y.grad)
+            #grad = self.y.grad
+            
+            with torch.no_grad():
+                temp = self.y + lr*self.y.grad
+                temp = temp.detach().cpu().numpy()
+                temp = (self.projection_simplex_sort_2d(temp.T)).T
+                self.y = None
+                self.y = torch.from_numpy(temp).float().to('cuda:0')
+                #temp = self.projection_simplex_sort_2d(temp)
+                #self.y = temp.clone()
+            self.y.requires_grad = True
+            for b in range(self.n):
+                self.ws[b].zero_grad()
+            
+            
+
+
+
+
+        #T = int((self.m / self.eps) ** 2)
+        #for i in range(self.n):
+        #    self.y[:, i] = self._maximize_dsf(self.ws[i], lr, T, bs)
     
     def generate_allocation(self):
         output = torch.tensor([torch.multinomial(self.y[j], 1) for j in range(self.m)]).to(self.device)
+        print(f'Final Distribution: {self.y}')
         return [(output == i).float().to(self.device) for i in range(self.n)]
+
+    def projection_simplex_sort_2d(self, v, z=1):
+        """v array of shape (n_features, n_samples)."""
+        #v = v.detach().cpu().numpy()
+
+        p, n = v.shape
+        u = np.sort(v, axis=0)[::-1, ...]
+        pi = np.cumsum(u, axis=0) - z
+        ind = (np.arange(p) + 1).reshape(-1, 1)
+        mask = (u - pi / ind) > 0
+        rho = p - 1 - np.argmax(mask[::-1, ...], axis=0)
+        theta = pi[tuple([rho, np.arange(n)])] / (rho + 1)
+        w = np.maximum(v - theta, 0)
+
+        #w = torch.from_numpy(w).float()
+        #w = w.to('cuda:0')
+        #w.requires_grad = True
+
+        return w
 
 
