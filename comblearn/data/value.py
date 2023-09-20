@@ -2,6 +2,8 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 from ..nn import DSF, Modular
+import numpy as np
+import random
 
 class ValueFunction(nn.Module):
     def __init__(self, items, device='cuda' if torch.cuda.is_available() else 'cpu'):
@@ -9,7 +11,7 @@ class ValueFunction(nn.Module):
         self.items = items
         self.device = device
 
-    def forward(self, bundle : set[int]):
+    def forward(self, bundle):
         raise NotImplementedError("This is abstract value function! :(")
 
 
@@ -37,3 +39,48 @@ class DSFValueFunction(ValueFunction):
 
     def forward(self, bundle):  # `bundle` can be a batch of bundles
         return self.dsf(bundle)
+
+
+class LogDeterminant(ValueFunction):  # its not monotone so...
+    def __init__(self, items):
+        super().__init__(items)
+        matrix_size = len(items)
+        A = np.random.rand(matrix_size, matrix_size)
+        P = np.dot(A, A.T)
+        self.L = torch.from_numpy(P).float().to('cuda:0')
+
+    
+    def forward(self, bundle):
+        pass
+
+
+class CoverageFunction(ValueFunction):
+    def __init__(self, items, max_out=0, hidden_sizes=0, alpha=0, device='cuda' if torch.cuda.is_available() else 'cpu'):
+        super().__init__(items)
+        A = []
+        for _ in range(len(items)):
+            a = random.randint(1, 50)
+            A.append(set(random.sample(range(50), a)))
+        self.subsets = A
+
+    def forward(self, bundle):
+        index = bundle.tolist()
+        output = set()
+        for i in range(len(self.items)):
+            if index[i] == 1:
+                output = output.union(self.subsets[i])
+        output = len(output)
+        output = torch.tensor([output]).float().to('cuda:0')
+        output.requires_grad = True
+        return output
+    
+    def __call___(self, bundle):
+        index = bundle.tolist()
+        output = set()
+        for i in range(len(self.items)):
+            if index[i] == 1:
+                output = output.union(self.subsets[i])
+        output = len(output)
+        output = torch.tensor([output]).float().to('cuda:0')
+        output.requires_grad = True
+        return output
