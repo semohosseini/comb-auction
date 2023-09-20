@@ -52,11 +52,29 @@ class DSF(nn.Module): # Deep Submodular Function
     
 
 class DSFWrapper(nn.Module):
-    def __init__(self, n, dsf: DSF):
+    def __init__(self, m, n, dsfs: List[DSF]):
         super().__init__()
-        self.weights = nn.Parameter(torch.zeros((n, ))).float()
-        self.submodular = dsf
+        self.weights = nn.Parameter(torch.zeros((m, n))).float()
+        assert n == len(dsfs)
+        self.dsfs = dsfs
 
     def forward(self, x):
         mask = (x > 0).float()
-        return self.submodular(mask * self.weights)
+        masked_weights = mask * self.weights
+        s = torch.tensor([0.0]).cuda()
+        for b, dsf in enumerate(self.dsfs):
+            s += dsf(masked_weights[:, :, b]).mean()
+        return s
+    
+    def project_weights(self, z=1): # It projects each "column" on to simplex
+        """v array of shape (n_features, n_samples)."""
+        v = self.weights.T
+        p, n = v.shape
+        u = torch.sort(v, dim=0, descending=True)[0]
+        pi = torch.cumsum(u, dim=0) - z
+        ind = torch.reshape(torch.arange(p) + 1, (-1, 1)).cuda()
+        mask = (u - pi / ind) > 0
+        rho = p - 1 - torch.argmax(mask.flip([0]).int(), dim=0)
+        theta = pi[tuple([rho, torch.arange(n).cuda()])] / (rho + 1)
+        w = torch.maximum(v - theta, torch.tensor(0).cuda())
+        self.weights.data = w.T

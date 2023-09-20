@@ -3,21 +3,21 @@
 auction:
   bidders: 
     - name: 'ali'
-      cls: 'comblearn.data.CoverageFunction'
-      args: [100, [2, 3, 2], 500]
+      cls: 'comblearn.data.DSFValueFunction'
+      args: [100, [2, 3, 2], 10]
     - name: 'hassan'
-      cls: 'comblearn.data.CoverageFunction'
-      args: [100, [2, 3, 2], 500]
+      cls: 'comblearn.data.DSFValueFunction'
+      args: [100, [2, 3, 2], 10]
     - name: 'mahdi'
-      cls: 'comblearn.data.CoverageFunction'
-      args: [100, [2, 3, 2], 500]
+      cls: 'comblearn.data.DSFValueFunction'
+      args: [100, [2, 3, 2], 10]
 
   
-  items: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+  items: [0, 1, 2, 3, 4, 5, 6, 7]
 
   data:
-    q-init: 500
-    q-max: 505
+    q-init: 50
+    q-max: 55
     brute-force: true
 
   query:
@@ -35,13 +35,13 @@ auction:
     models:
       - name: 'ali'
         cls: 'comblearn.data.DSFValueFunction'
-        args: [80, [10], 300]
+        args: [80, [10], 20]
       - name: 'hassan'
         cls: 'comblearn.data.DSFValueFunction'
-        args: [80, [10], 300]
+        args: [80, [10], 20]
       - name: 'mahdi'
         cls: 'comblearn.data.DSFValueFunction'
-        args: [80, [10], 300]
+        args: [80, [10], 20]
 
   allocation:
     scheme: 'RandGreedy'
