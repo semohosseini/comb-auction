@@ -39,7 +39,7 @@ class DSFValueFunction(ValueFunction):
         return self.dsf(bundle)
 
 
-class CoverageFunction(ValueFunction):
+class CoverageValueFunction(ValueFunction):
     def __init__(self, items, universe, p=0.5, device='cuda' if torch.cuda.is_available() else 'cpu'):
         super().__init__(items, device)
         self.universe = Universe(len(items), universe, p)
