@@ -63,7 +63,7 @@ class DSFWrapper(nn.Module):
         masked_weights = mask * self.weights
         s = torch.tensor([0.0]).cuda()
         for b, dsf in enumerate(self.dsfs):
-            s += dsf(masked_weights[:, :, b]).mean()
+            s += dsf(masked_weights[..., b]).mean()
         return s
     
     def project_weights(self, z=1): # It projects each "column" on to simplex
