@@ -12,16 +12,18 @@ import logging
 class CombinatorialAuction():
     def __init__(self, cfg):
         self.config = cfg
-        self.data_config = cfg['data']
+        self.data_config = None if not 'data' in cfg else cfg['data']
         self.learning_config = cfg['learning']
         self.allocation_config = cfg['allocation']
-        self.query_config = cfg['query']
+        self.query_config = None if not 'query' in cfg else cfg['query']
         self.device = cfg['device']
-        self.items = cfg['items']
+        self.items = None if not 'items' in cfg else cfg['items']
         self.bidders = []
         for bcfg in cfg['bidders']:
-            vf_cls = eval(bcfg['cls'])
-            vf = vf_cls(self.items, *bcfg['args']).to(self.device)
+            vf = None
+            if 'cls' in bcfg:
+                vf_cls = eval(bcfg['cls'])
+                vf = vf_cls(self.items, *bcfg['args']).to(self.device)
             self.bidders.append(Bidder(bcfg['name'], vf))
 
         self.data_handler = DataHandler(self.items, self.bidders, self.data_config)
@@ -44,8 +46,8 @@ class CombinatorialAuction():
         T = 0
         new_queries = None
         
-        if self.query_config['marginal']:
-            T = (self.config['q-max'] - self.config['q-init']) // len(self.bidders)
+        if self.data_config and self.query_config and self.query_config['marginal']:
+            T = (self.data_config['q-max'] - self.data_config['q-init']) // len(self.bidders)
             t = 1
             # Generating next queries
             logging.info("Query generation...")
@@ -71,55 +73,21 @@ class CombinatorialAuction():
         # Final allocation
         logging.info("Final allocation calculation...")
         self.learning_handler.learn(writer=writer, step=T+1)
-        #allocation, social_welfare = self.allocation_handler.allocate()
-        #if writer:
-        #    writer.add_scalar("Social Welfare", social_welfare, T+1)
-        #logging.info(f"Optimal allocation:")
-        #for k in allocation:
-        #    logging.info(f"({k, allocation[k]})")
-        #logging.info(f"Social welfare: {social_welfare}")
-
-
-        #y = self.allocation_handler.allocate()
         
-        k = 1
-        social_welfare = -1000
+        k = 1 if not 'num_sample' in self.allocation_config else self.allocation_config['num_sample']
+        opt_social_welfare = -1000
         opt_alloc = None
-        for i in range(k):
-            s = 0
-            #output = torch.tensor([torch.multinomial(self.y[j], 1) for j in range(len(self.items))]).to(self.device)
-            #allocation = [(output == j).float().to(self.device) for j in range(3)]
-            allocation, h = self.allocation_handler.allocate()
-            for b in self.bidders:
-                s += b(allocation[b.name])
-            if s > social_welfare:
-                social_welfare = s
+        for _ in range(k):
+            allocation, social_welfare = self.allocation_handler.allocate()
+            if social_welfare > opt_social_welfare:
+                opt_social_welfare = social_welfare
                 opt_alloc = allocation
-        return opt_alloc, social_welfare
-
-
-
-
-        bundles = self.data_handler.get_R()
-        q = self.config['q-init']
-        max = -10000000
-        max_allocation = None
-        for i in range(q):
-            s = 0
-            for b in self.bidders:
-                s = s + bundles[b.name][1][i]
-            if s > max : 
-                max = s
-                max_allocation
-
-
-
-
-        # Payment calculation
+        
+        logging.info(f"Calculated Social Welfare: {opt_social_welfare}")
+        
         logging.info("Payment calculation..")
-        payments = self.allocation_handler.calc_payments(allocation)
+        payments = self.allocation_handler.calc_payments(opt_alloc)
         
         logging.info(f"Payments: {payments}")
-
-        return allocation, payments
+        return opt_alloc, payments
 

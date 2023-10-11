@@ -31,12 +31,11 @@ class DataHandler:
         self.R = {}
         #for bidder in self.bidders:
             #self.R[bidder.name] = self._generate_initial_data(bidder, self.config['q-init'])
-        q = self.config['q-init']
-        bundles = self.bundle_generator(q)
-        for bidder in self.bidders:
-            self.R[bidder.name] = bundles, bidder(bundles)
-
-            
+        if 'init' in self.config and self.config['init']:
+            q = self.config['q-init']
+            bundles = self.bundle_generator(q)
+            for bidder in self.bidders:
+                self.R[bidder.name] = bundles, bidder(bundles)
 
         self.opt_sw = None
         if 'brute-force' in self.config and self.config['brute-force']:
@@ -67,6 +66,16 @@ class DataHandler:
         if isinstance(key, str) and key in self.R:
             return self.R[key]
         raise ValueError(f"Key {key} is not in range!")
+
+    def add_data(self, data):
+        for bidder in data:
+            if bidder in self.R:
+                X, y = self.R[bidder]
+                newX, newy = data[bidder]
+                self.R[bidder] = torch.vstack((X, newX)), torch.vstack((y, newy))
+            else:
+                newX, newy = data[bidder]
+                self.R[bidder] = newX, newy
 
     def add_queries(self, list_queries):
         for name, qs in enumerate(list_queries):
