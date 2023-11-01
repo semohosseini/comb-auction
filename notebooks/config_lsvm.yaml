@@ -1,0 +1,62 @@
+# Configuration for Auction with LSVM value functions
+
+auction:
+  bidders: 
+    - name: '0'
+    - name: '1'
+    - name: '2'
+    - name: '3'
+    - name: '4'
+    - name: '5'
+
+  
+  items: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ,10 ,11, 12, 13, 14, 15, 16, 17]
+
+  data:
+    q-init: 100
+    q-max: 110
+    brute-force: False
+
+  query:
+    marginal: False
+    max-retries: 10
+
+  device: 'cuda'
+
+  queries_path: '/home/mahdi_mousavi/comb-auction/notebooks/lsvm_queries.txt'
+
+
+  learning:
+    cls: 'comblearn.optim.learning.DSFLearner'
+    optimizer: torch.optim.Adam
+    learning-rate: 0.01
+    epochs: 18000
+    models:
+      - name: '0'
+        cls: 'comblearn.data.DSFValueFunction'
+        args: [60, [64, 64, 64], 400]
+      - name: '1'
+        cls: 'comblearn.data.DSFValueFunction'
+        args: [60, [64, 64, 64], 400]
+      - name: '2'
+        cls: 'comblearn.data.DSFValueFunction'
+        args: [60, [64, 64, 64], 400]
+      - name: '3'
+        cls: 'comblearn.data.DSFValueFunction'
+        args: [60, [64, 64, 64], 400]
+      - name: '4'
+        cls: 'comblearn.data.DSFValueFunction'
+        args: [60, [64, 64, 64], 400]
+      - name: '5'
+        cls: 'comblearn.data.DSFValueFunction'
+        args: [60, [64, 64, 64], 400]
+
+
+  allocation:
+    scheme: 'RandGreedy'
+    optimizer: 'comblearn.optim.RandGreedyOptimizer'
+    delta: 0.005
+    sample_rate: 5
+
+
+

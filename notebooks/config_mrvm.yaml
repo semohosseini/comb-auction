@@ -1,0 +1,78 @@
+# Configuration for Auction with LSVM value functions
+
+auction:
+  bidders: 
+    - name: '0'
+    - name: '1'
+    - name: '2'
+    - name: '3'
+    - name: '4'
+    - name: '5'
+    - name: '6' 
+    - name: '7'
+    - name: '8'
+    - name: '9'
+
+  
+  items: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97]
+
+  data:
+    q-init: 100
+    q-max: 110
+    brute-force: False
+
+  query:
+    marginal: False
+    max-retries: 10
+
+  device: 'cuda'
+
+  queries_path: '/home/mahdi_mousavi/comb-auction/notebooks/mrvm_queries.txt'
+
+
+  learning:
+    cls: 'comblearn.optim.learning.DSFLearner'
+    optimizer: torch.optim.Adam
+    learning-rate: 0.01
+    epochs: 18000
+    models:
+      - name: '0'
+        cls: 'comblearn.data.DSFValueFunction'
+        args: [60, [64, 64, 64], 400]
+      - name: '1'
+        cls: 'comblearn.data.DSFValueFunction'
+        args: [60, [64, 64, 64], 400]
+      - name: '2'
+        cls: 'comblearn.data.DSFValueFunction'
+        args: [60, [64, 64, 64], 400]
+      - name: '3'
+        cls: 'comblearn.data.DSFValueFunction'
+        args: [60, [64, 64, 64], 400]
+      - name: '4'
+        cls: 'comblearn.data.DSFValueFunction'
+        args: [60, [64, 64, 64], 400]
+      - name: '5'
+        cls: 'comblearn.data.DSFValueFunction'
+        args: [60, [64, 64, 64], 400]
+      - name: '6'
+        cls: 'comblearn.data.DSFValueFunction'
+        args: [60, [64, 64, 64], 400]
+      - name: '7'
+        cls: 'comblearn.data.DSFValueFunction'
+        args: [60, [64, 64, 64], 400]
+      - name: '8'
+        cls: 'comblearn.data.DSFValueFunction'
+        args: [60, [64, 64, 64], 400]
+      - name: '9'
+        cls: 'comblearn.data.DSFValueFunction'
+        args: [60, [64, 64, 64], 400]
+
+
+  allocation:
+    scheme: 'RandGreedy'
+    optimizer: 'comblearn.optim.RandGreedyOptimizer'
+    delta: 0.005
+    sample_rate: 5
+
+
+

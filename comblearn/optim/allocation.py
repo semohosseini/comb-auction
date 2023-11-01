@@ -1,6 +1,6 @@
 import torch
 from ..nn.dsf import DSFWrapper
-
+import numpy as np
 import logging
 
 class Optimizer:
@@ -99,9 +99,108 @@ class RandGreedyOptimizer(Optimizer):
 class GradientAscentOptimizer(Optimizer):
     def __init__(self, m, n, ws, eps):
         super().__init__(m, n, ws)
-        self.wrapper = DSFWrapper(m, n, ws).to(self.device)
-        self.y = torch.zeros((m, n)).to(self.device)
+        #temp = torch.zeros((m, n)).float().to(self.device)
+        temp = np.zeros((m, n))
+        temp = (self.projection_simplex_sort_2d(temp.T)).T
+        self.y = torch.from_numpy(temp).float().to('cuda:0')
         self.eps = eps
+
+    def _maximize_dsf(self, dsf, lr, T, bs=10):
+        wrapper = DSFWrapper(self.m, dsf).to(self.device)
+        last_pred = -1.0
+
+        for i in range(T // bs):
+            if i % 1000 == 0:
+                logging.info(f"Step {i}/{T // bs}")
+            
+            m = torch.ones((bs, self.m)).float().to(self.device)
+            pred = wrapper(m).mean()
+            if i % 1000 == 0:
+                logging.info(f"Output: {pred.item()}")
+
+            if pred == last_pred:
+                break
+            else:
+                last_pred = pred
+            
+            pred.backward()
+            g = wrapper.weights.grad
+            with torch.no_grad():
+                wrapper.weights.add_(lr * g)
+                wrapper.weights.abs_()
+                wrapper.weights.clamp_max_(1)
+
+        
+        return wrapper.weights.clone().detach()
+    
+    def optimize(self, lr=2e-1, bs=10, num_iterations=10000):
+        self.y.requires_grad = True
+        for i in range(num_iterations):
+            #print(f'iteration is: {i}')
+            #print(self.y)
+            s = torch.zeros(1).float().to(self.device)
+            for b in range(self.n):
+                s += self.ws[b](self.y[:,b])
+            self.y.retain_grad()
+            if(i % 10 == 0):
+                print(f'output is: {s.item()}, iteration is: {i}')
+            s.backward()
+            #print(self.y.grad)
+            #grad = self.y.grad
+            
+            with torch.no_grad():
+                temp = self.y + lr*self.y.grad
+                temp = temp.detach().cpu().numpy()
+                temp = (self.projection_simplex_sort_2d(temp.T)).T
+                self.y = None
+                self.y = torch.from_numpy(temp).float().to('cuda:0')
+                #temp = self.projection_simplex_sort_2d(temp)
+                #self.y = temp.clone()
+            self.y.requires_grad = True
+            for b in range(self.n):
+                self.ws[b].zero_grad()
+            
+            
+
+
+
+
+        #T = int((self.m / self.eps) ** 2)
+        #for i in range(self.n):
+        #    self.y[:, i] = self._maximize_dsf(self.ws[i], lr, T, bs)
+    
+    def generate_allocation(self):
+        output = torch.tensor([torch.multinomial(self.y[j], 1) for j in range(self.m)]).to(self.device)
+        print(f'Final Distribution: {self.y}')
+        return [(output == i).float().to(self.device) for i in range(self.n)]
+
+    def projection_simplex_sort_2d(self, v, z=1):
+        """v array of shape (n_features, n_samples)."""
+        #v = v.detach().cpu().numpy()
+
+        p, n = v.shape
+        u = np.sort(v, axis=0)[::-1, ...]
+        pi = np.cumsum(u, axis=0) - z
+        ind = (np.arange(p) + 1).reshape(-1, 1)
+        mask = (u - pi / ind) > 0
+        rho = p - 1 - np.argmax(mask[::-1, ...], axis=0)
+        theta = pi[tuple([rho, np.arange(n)])] / (rho + 1)
+        w = np.maximum(v - theta, 0)
+
+        #w = torch.from_numpy(w).float()
+        #w = w.to('cuda:0')
+        #w.requires_grad = True
+
+        return w
+
+
+
+class BatchGradientAscentOptimizer(Optimizer):
+    def __init__(self, m, n, ws, eps):
+       super().__init__(m, n, ws)
+       self.wrapper = DSFWrapper(m, n, ws).to(self.device)
+       self.y = torch.zeros((m, n)).to(self.device)
+       self.eps = eps
 
     def _maximize_dsf(self, lr, T, bs=10):
         last_pred = -1.0
@@ -132,24 +231,30 @@ class GradientAscentOptimizer(Optimizer):
         T = int((self.m / self.eps) ** 2)
         self.y = self._maximize_dsf(lr, T, bs)
 
+
+    
+    def optimize(self, lr=2e-4, bs=10):
+       T = int((self.m / self.eps) ** 2)
+       self.y = self._maximize_dsf(lr, T, bs)
+
             
     def generate_allocation(self):
-        output = torch.tensor([torch.multinomial(self.y[j], 1) for j in range(self.m)]).to(self.device)
-        print(f'Final Distribution: {self.y}')
-        return [(output == i).float().to(self.device) for i in range(self.n)]
+       output = torch.tensor([torch.multinomial(self.y[j], 1) for j in range(self.m)]).to(self.device)
+       print(f'Final Distribution: {self.y}')
+       return [(output == i).float().to(self.device) for i in range(self.n)]
 
     def project_simplex(self, v, z=1): # It projects each "column" on to simplex
-        """v array of shape (n_features, n_samples)."""
-        v = v.T
-        p, n = v.shape
-        u = torch.sort(v, dim=0, descending=True)[0].to(self.device)
-        pi = torch.cumsum(u, dim=0) - z
-        ind = torch.reshape(torch.arange(p) + 1, (-1, 1)).to(self.device)
-        mask = (u - pi / ind) > 0
-        rho = p - 1 - torch.argmax(mask.flip([0]).int(), dim=0).to(self.device)
-        theta = pi[tuple([rho, torch.arange(n, device=self.device)])] / (rho + 1)
-        w = torch.maximum(v - theta, torch.tensor(0, device=self.device))
+       """v array of shape (n_features, n_samples)."""
+       v = v.T
+       p, n = v.shape
+       u = torch.sort(v, dim=0, descending=True)[0].to(self.device)
+       pi = torch.cumsum(u, dim=0) - z
+       ind = torch.reshape(torch.arange(p) + 1, (-1, 1)).to(self.device)
+       mask = (u - pi / ind) > 0
+       rho = p - 1 - torch.argmax(mask.flip([0]).int(), dim=0).to(self.device)
+       theta = pi[tuple([rho, torch.arange(n, device=self.device)])] / (rho + 1)
+       w = torch.maximum(v - theta, torch.tensor(0, device=self.device))
 
-        return w.T
+       return w.T
 
 

@@ -11,20 +11,35 @@ import logging
 
 class CombinatorialAuction():
     def __init__(self, cfg):
+        # self.config = cfg
+        # self.data_config = cfg['data']
+        # self.learning_config = cfg['learning']
+        # self.allocation_config = cfg['allocation']
+        # self.query_config = cfg['query']
+        # self.device = cfg['device']
+        # self.items = cfg['items']
+        # self.bidders = []
+        # for bcfg in cfg['bidders']:
+        #     vf_cls = eval(bcfg['cls'])
+        #     vf = vf_cls(self.items, *bcfg['args']).to(self.device)
+        #     self.bidders.append(Bidder(bcfg['name'], vf))
         self.config = cfg
-        self.data_config = cfg['data']
+        self.data_config = None if not 'data' in cfg else cfg['data']
         self.learning_config = cfg['learning']
         self.allocation_config = cfg['allocation']
-        self.query_config = cfg['query']
+        self.query_config = None if not 'query' in cfg else cfg['query']
         self.device = cfg['device']
-        self.items = cfg['items']
+        self.items = None if not 'items' in cfg else cfg['items']
         self.bidders = []
+        self.query_address = cfg['queries_path']
         for bcfg in cfg['bidders']:
-            vf_cls = eval(bcfg['cls'])
-            vf = vf_cls(self.items, *bcfg['args']).to(self.device)
+            vf = None
+            if 'cls' in bcfg:
+                vf_cls = eval(bcfg['cls'])
+                vf = vf_cls(self.items, *bcfg['args']).to(self.device)
             self.bidders.append(Bidder(bcfg['name'], vf))
 
-        self.data_handler = DataHandler(self.items, self.bidders, self.data_config)
+        self.data_handler = DataHandler(self.items, self.bidders, self.data_config, self.query_address)
         
         models = {}
         for mcfg in cfg['learning']['models']:
@@ -85,16 +100,20 @@ class CombinatorialAuction():
         k = 1
         social_welfare = -1000
         opt_alloc = None
-        for i in range(k):
-            s = 0
-            #output = torch.tensor([torch.multinomial(self.y[j], 1) for j in range(len(self.items))]).to(self.device)
-            #allocation = [(output == j).float().to(self.device) for j in range(3)]
-            allocation, h = self.allocation_handler.allocate()
-            for b in self.bidders:
-                s += b(allocation[b.name])
-            if s > social_welfare:
-                social_welfare = s
-                opt_alloc = allocation
+        if 'init' in self.data_config and self.data_config['init']: 
+            for i in range(k):
+                s = 0
+                #output = torch.tensor([torch.multinomial(self.y[j], 1) for j in range(len(self.items))]).to(self.device)
+                #allocation = [(output == j).float().to(self.device) for j in range(3)]
+                allocation, h = self.allocation_handler.allocate()
+                for b in self.bidders:
+                    s += b(allocation[b.name])
+                if s > social_welfare:
+                    social_welfare = s
+                    opt_alloc = allocation
+        else:
+            print('No value function is available, calculate social_welfare from source')
+            opt_alloc, h = self.allocation_handler.allocate()
         return opt_alloc, social_welfare
 
 

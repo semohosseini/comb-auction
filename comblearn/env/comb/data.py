@@ -1,5 +1,6 @@
 from typing import List
 import torch
+import ast
 
 import logging
 
@@ -23,7 +24,7 @@ class BundleGenerator:
 
 
 class DataHandler:
-    def __init__(self, items, bidders: List[Bidder], cfg):
+    def __init__(self, items, bidders: List[Bidder], cfg, query_address=None):
         self.config = cfg
         self.items = items
         self.bidders = bidders
@@ -31,10 +32,22 @@ class DataHandler:
         self.R = {}
         #for bidder in self.bidders:
             #self.R[bidder.name] = self._generate_initial_data(bidder, self.config['q-init'])
-        q = self.config['q-init']
-        bundles = self.bundle_generator(q)
-        for bidder in self.bidders:
-            self.R[bidder.name] = bundles, bidder(bundles)
+        if 'init' in self.config and self.config['init']:
+            q = self.config['q-init']
+            bundles = self.bundle_generator(q)
+            for bidder in self.bidders:
+                self.R[bidder.name] = bundles, bidder(bundles)
+        else:
+            with open(query_address) as f:
+                q = f.read() 
+            queries = ast.literal_eval(q)
+            for i in range(len(queries)):
+                bidder = queries[i]
+                for query in bidder:
+                    value = torch.tensor(query[-1], device='cuda').float().to("cuda")
+                    bundle = torch.tensor(query[:-1], device='cuda').float().to("cuda")
+                    dictionary = {str(i): (bundle, value)}
+                    self.add_data(dictionary)
 
             
 
@@ -67,6 +80,16 @@ class DataHandler:
         if isinstance(key, str) and key in self.R:
             return self.R[key]
         raise ValueError(f"Key {key} is not in range!")
+    
+    def add_data(self, data):
+        for bidder in data:
+            if bidder in self.R:
+                X, y = self.R[bidder]
+                newX, newy = data[bidder]
+                self.R[bidder] = torch.vstack((X, newX)), torch.vstack((y, newy))
+            else:
+                newX, newy = data[bidder]
+                self.R[bidder] = newX, newy
 
     def add_queries(self, list_queries):
         for name, qs in enumerate(list_queries):

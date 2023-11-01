@@ -2,23 +2,25 @@
 
 auction:
   bidders: 
-    - name: 'ali'
-      cls: 'comblearn.data.CoverageValueFunction'
-      args: [50, 0.2]
-    - name: 'hassan'
-      cls: 'comblearn.data.CoverageValueFunction'
-      args: [50, 0.4]
-    - name: 'mahdi'
-      cls: 'comblearn.data.CoverageValueFunction'
-      args: [50, 0.6]
+    - name: '0'
+      cls: 'comblearn.data.DSFValueFunction'
+      args: [60, [64, 128, 64], 60]
+    - name: '1'
+      cls: 'comblearn.data.DSFValueFunction'
+      args: [60, [32, 64, 32], 30]
+    - name: '2'
+      cls: 'comblearn.data.DSFValueFunction'
+      args: [60, [32, 128, 64], 40]
+
 
   
   items: [0, 1, 2, 3, 4, 5, 6, 7]
 
   data:
-    q-init: 50
-    q-max: 55
-    brute-force: true
+    q-init: 64
+    q-max: 68
+    brute-force: True
+    init: True
 
   query:
     marginal: False
@@ -26,22 +28,25 @@ auction:
 
   device: 'cuda'
 
+  queries_path: '/home/mahdi_mousavi/comb-auction/notebooks/lsvm_queries.txt'
+
 
   learning:
     cls: 'comblearn.optim.learning.DSFLearner'
-    optimizer: torch.optim.SGD
+    optimizer: torch.optim.Adam
     learning-rate: 0.01
-    epochs: 3000
+    epochs: 6000
     models:
-      - name: 'ali'
-        cls: 'comblearn.data.DSFValueFunction'
-        args: [80, [10], 30]
-      - name: 'hassan'
-        cls: 'comblearn.data.DSFValueFunction'
-        args: [80, [10], 30]
-      - name: 'mahdi'
-        cls: 'comblearn.data.DSFValueFunction'
-        args: [80, [10], 30]
+      - name: '0'
+        cls: 'comblearn.data.ExtendedDSFValueFunction'
+        args: [60, [5, 5], 5]
+      - name: '1'
+        cls: 'comblearn.data.ExtendedDSFValueFunction'
+        args: [60, [5, 5], 5]
+      - name: '2'
+        cls: 'comblearn.data.ExtendedDSFValueFunction'
+        args: [60, [5, 5], 5]
+
 
   allocation:
     scheme: 'RandGreedy'
