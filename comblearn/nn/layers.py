@@ -7,7 +7,7 @@ from torch import Tensor
 class PosLinear(nn.Module):
     def __init__(self, in_dim, out_dim):
         super(PosLinear, self).__init__()
-        self.weight = nn.Parameter(torch.randn((in_dim, out_dim)).abs_()*0.001)
+        self.weight = nn.Parameter(torch.randn((in_dim, out_dim)).abs_() * 0.1)
         # self.bias = nn.Parameter(torch.randn((out_dim,)).abs_())
         
     def forward(self, x):
