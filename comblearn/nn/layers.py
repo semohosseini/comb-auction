@@ -7,12 +7,23 @@ from torch import Tensor
 class PosLinear(nn.Module):
     def __init__(self, in_dim, out_dim):
         super(PosLinear, self).__init__()
-        self.weight = nn.Parameter(torch.randn((in_dim, out_dim)).abs_())
-        self.bias = nn.Parameter(torch.zeros((out_dim,)).abs_())
+        self.weight = nn.Parameter(torch.randn((in_dim, out_dim)).abs_()*0.001)
+        # self.bias = nn.Parameter(torch.randn((out_dim,)).abs_())
         
     def forward(self, x):
-        assert (x >= 0).all()
-        return torch.matmul(x, torch.abs(self.weight)) + torch.abs(self.bias)
+        # assert (x >= 0).all()
+        return torch.matmul(x, self.weight) # + torch.abs(self.bias)
+    
+    def relu(self):
+        self.weight.relu_()
+
+
+class MinComponent(nn.Module):
+    def forward(self, x):
+        return torch.min(x, dim=-1).values
+
+    def relu(self):
+        pass
 
 
 class MiLU(nn.Module): # Minimum Linear function
@@ -23,8 +34,9 @@ class MiLU(nn.Module): # Minimum Linear function
 
     def forward(self, input: Tensor) -> Tensor:
         return torch.minimum(input, self.alpha)
-        #s = nn.Sigmoid()
-        #return s(input)
+        #return torch.log(1+input)
+        # s = nn.Sigmoid()
+        # return s(input) - 0.5
 
 
     def extra_repr(self) -> str:

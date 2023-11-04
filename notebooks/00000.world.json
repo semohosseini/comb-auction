@@ -1,0 +1,1001 @@
+{
+  "regionsMap": {
+    "adjacencyGraph": [
+      {
+        "node": {
+          "id": 0,
+          "population": 514711,
+          "note": "Newfoundland and Labrador"
+        },
+        "neighbors": [
+          1,
+          3,
+          6
+        ]
+      },
+      {
+        "node": {
+          "id": 1,
+          "population": 1061900,
+          "note": "Nova Scotia and Prince Edward Island"
+        },
+        "neighbors": [
+          0,
+          2
+        ]
+      },
+      {
+        "node": {
+          "id": 2,
+          "population": 749623,
+          "note": "New Brunswick"
+        },
+        "neighbors": [
+          1,
+          3,
+          4
+        ]
+      },
+      {
+        "node": {
+          "id": 3,
+          "population": 1668504,
+          "note": "Eastern Quebec"
+        },
+        "neighbors": [
+          0,
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "node": {
+          "id": 4,
+          "population": 5683127,
+          "note": "Southern Quebec"
+        },
+        "neighbors": [
+          2,
+          3,
+          6
+        ]
+      },
+      {
+        "node": {
+          "id": 5,
+          "population": 2347556,
+          "note": "Eastern Ontario and Outaouais"
+        },
+        "neighbors": [
+          7,
+          8
+        ]
+      },
+      {
+        "node": {
+          "id": 6,
+          "population": 190271,
+          "note": "Northern Quebec"
+        },
+        "neighbors": [
+          0,
+          3,
+          4,
+          8
+        ]
+      },
+      {
+        "node": {
+          "id": 7,
+          "population": 10091045,
+          "note": "Southern Ontario"
+        },
+        "neighbors": [
+          5,
+          8
+        ]
+      },
+      {
+        "node": {
+          "id": 8,
+          "population": 773104,
+          "note": "Northern Ontario"
+        },
+        "neighbors": [
+          5,
+          6,
+          7,
+          9
+        ]
+      },
+      {
+        "node": {
+          "id": 9,
+          "population": 1208253,
+          "note": "Manitoba"
+        },
+        "neighbors": [
+          8,
+          10
+        ]
+      },
+      {
+        "node": {
+          "id": 10,
+          "population": 2059248,
+          "note": "Saskatchewan (incl. Province)"
+        },
+        "neighbors": [
+          9,
+          11,
+          13
+        ]
+      },
+      {
+        "node": {
+          "id": 11,
+          "population": 7297342,
+          "note": "Alberta (incl. Province)"
+        },
+        "neighbors": [
+          10,
+          12,
+          13
+        ]
+      },
+      {
+        "node": {
+          "id": 12,
+          "population": 4399805,
+          "note": "British Columbia"
+        },
+        "neighbors": [
+          11,
+          13
+        ]
+      },
+      {
+        "node": {
+          "id": 13,
+          "population": 104625,
+          "note": "Yukon, Northwest Territories and Nunavut"
+        },
+        "neighbors": [
+          10,
+          11,
+          12
+        ]
+      }
+    ]
+  },
+  "bands": [
+    {
+      "baseCapacity": 0.8937322357910741,
+      "numberOfLots": 2,
+      "licenses": [
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 0,
+          "uuid": "bd509186-6707-4f45-aa86-8ee16990bff8",
+          "longId": 0,
+          "name": "A",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 1,
+          "uuid": "410a5756-4d8b-4587-829e-25981364c5c6",
+          "longId": 1,
+          "name": "B",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 2,
+          "uuid": "e04ed61e-980e-4ba7-870c-12e49cda6094",
+          "longId": 2,
+          "name": "C",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 3,
+          "uuid": "4f2b98f2-867b-432a-ab85-915c8a58bca9",
+          "longId": 3,
+          "name": "D",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 4,
+          "uuid": "34d03196-d10b-4e3a-b1ea-f3657ee355e8",
+          "longId": 4,
+          "name": "E",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 5,
+          "uuid": "95d1a145-f87b-468c-a7e6-aa507d02095f",
+          "longId": 5,
+          "name": "F",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 6,
+          "uuid": "c1a26c57-857e-4f3c-87e9-b81bc5a3f18e",
+          "longId": 6,
+          "name": "G",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 7,
+          "uuid": "d859e66d-03c7-4e76-b32c-68570a6635da",
+          "longId": 7,
+          "name": "H",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 8,
+          "uuid": "4ea06268-4a29-44b2-8d10-6bb59cb43c08",
+          "longId": 8,
+          "name": "I",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 9,
+          "uuid": "c8e9443b-0af1-45eb-9322-4c4536b7d06a",
+          "longId": 9,
+          "name": "J",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 10,
+          "uuid": "ad93a055-65a9-4fe2-b52d-b73ce375ca4c",
+          "longId": 10,
+          "name": "K",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 11,
+          "uuid": "9b439637-8912-4d38-8988-b884f2b84cb6",
+          "longId": 11,
+          "name": "L",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 12,
+          "uuid": "f332a771-c0b0-47d8-a7b7-0d43e0863eff",
+          "longId": 12,
+          "name": "M",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 13,
+          "uuid": "69c970f2-7398-47b9-9e8f-c81c39c6d4f8",
+          "longId": 13,
+          "name": "N",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 0,
+          "uuid": "a8c6e0f7-f0e2-4a22-b2db-8da9dd2a3b72",
+          "longId": 14,
+          "name": "O",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 1,
+          "uuid": "4fbfca8b-4d6a-4ff3-a452-a78d83fc7b6c",
+          "longId": 15,
+          "name": "P",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 2,
+          "uuid": "c085fda2-0639-479b-bcb2-7c7bfc420064",
+          "longId": 16,
+          "name": "Q",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 3,
+          "uuid": "291940c7-8a08-4bdc-8dbb-0c763f804fc5",
+          "longId": 17,
+          "name": "R",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 4,
+          "uuid": "bf8a8bef-a8a0-40d2-b4aa-6947cb7279f9",
+          "longId": 18,
+          "name": "S",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 5,
+          "uuid": "6e114570-3be5-4a4d-a0aa-dc69c8f79e60",
+          "longId": 19,
+          "name": "T",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 6,
+          "uuid": "11f20e2c-4969-493d-8c72-e8b9b99e07f6",
+          "longId": 20,
+          "name": "U",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 7,
+          "uuid": "0f2529a0-d4d9-46ff-9171-c0b8e4739faa",
+          "longId": 21,
+          "name": "V",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 8,
+          "uuid": "70c6c354-ea64-4fa0-9093-918691702880",
+          "longId": 22,
+          "name": "W",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 9,
+          "uuid": "3e395dbc-fd0b-4d1b-af8c-0e0cc25e9abf",
+          "longId": 23,
+          "name": "X",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 10,
+          "uuid": "86a7e757-0a91-4f51-b683-62d17c7af5b2",
+          "longId": 24,
+          "name": "Y",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 11,
+          "uuid": "1ff9bcde-d53b-4ae9-bbb2-8d3ee8e5185b",
+          "longId": 25,
+          "name": "Z",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 12,
+          "uuid": "9e59fe6f-81b9-4945-a13a-4f5136f156b0",
+          "longId": 26,
+          "name": "AA",
+          "worldId": 0
+        },
+        {
+          "bandName": "UNPAIRED",
+          "regionId": 13,
+          "uuid": "cfeace5c-9237-4c32-90f9-af64edf3ea31",
+          "longId": 27,
+          "name": "AB",
+          "worldId": 0
+        }
+      ],
+      "synergies": {
+        "1": 1.1000000000,
+        "2": 1.2000000000
+      },
+      "uuid": "e49d74cb-b351-4d8b-b1a4-cbfebc6a2e8b",
+      "name": "UNPAIRED",
+      "worldId": 0
+    },
+    {
+      "baseCapacity": 3.9561200734881172,
+      "numberOfLots": 2,
+      "licenses": [
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 0,
+          "uuid": "ce61102f-8cbf-4e5a-8e19-6154ba180c84",
+          "longId": 28,
+          "name": "AC",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 1,
+          "uuid": "47c845a7-0fdd-45bf-827e-a4005b481f20",
+          "longId": 29,
+          "name": "AD",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 2,
+          "uuid": "4c384063-9102-4aa4-ad9b-17e258800b03",
+          "longId": 30,
+          "name": "AE",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 3,
+          "uuid": "43cd022f-6f1f-41c6-814d-69ffd562d26e",
+          "longId": 31,
+          "name": "AF",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 4,
+          "uuid": "4c6e3988-78c9-4e5f-bb8d-32de71e37238",
+          "longId": 32,
+          "name": "AG",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 5,
+          "uuid": "bf0576bc-5cf3-48fd-b7ae-7862070f3390",
+          "longId": 33,
+          "name": "AH",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 6,
+          "uuid": "d3f9cbe8-3e93-4ef8-9cb3-31dd7392ab9e",
+          "longId": 34,
+          "name": "AI",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 7,
+          "uuid": "dc94ddc5-7dcb-4a4a-92ff-ec5226b228ef",
+          "longId": 35,
+          "name": "AJ",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 8,
+          "uuid": "94610b62-1c64-4430-a82d-712e1bfcae7a",
+          "longId": 36,
+          "name": "AK",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 9,
+          "uuid": "1368e9b8-fa36-449c-bb3e-1c9e7e8d3b4e",
+          "longId": 37,
+          "name": "AL",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 10,
+          "uuid": "5f7b3375-eb07-421d-9dbd-a3269a4b9c75",
+          "longId": 38,
+          "name": "AM",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 11,
+          "uuid": "55389ce7-6919-439c-b175-d8a503887bfd",
+          "longId": 39,
+          "name": "AN",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 12,
+          "uuid": "a5b534b3-3390-416b-adad-e4dbb858e148",
+          "longId": 40,
+          "name": "AO",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 13,
+          "uuid": "697b4975-f17e-47f3-a75b-fb7fd3a9ba85",
+          "longId": 41,
+          "name": "AP",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 0,
+          "uuid": "649776fb-d04f-4d5c-a372-0c0610092ea8",
+          "longId": 42,
+          "name": "AQ",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 1,
+          "uuid": "9a595be7-7ff4-4bc5-8a43-20565227aa04",
+          "longId": 43,
+          "name": "AR",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 2,
+          "uuid": "716ba249-d781-488f-becf-d08e32bdfe8a",
+          "longId": 44,
+          "name": "AS",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 3,
+          "uuid": "7145c09b-c69a-4e11-bcdb-6e5652ef738f",
+          "longId": 45,
+          "name": "AT",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 4,
+          "uuid": "dd9b3151-8a4b-482c-99e2-37561617d8d7",
+          "longId": 46,
+          "name": "AU",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 5,
+          "uuid": "aaf31aae-c165-46e6-85e6-44f2f3592989",
+          "longId": 47,
+          "name": "AV",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 6,
+          "uuid": "69efcc55-d754-48ee-a9d9-4c4d465d4f8d",
+          "longId": 48,
+          "name": "AW",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 7,
+          "uuid": "d7e2a8c1-d724-4f8c-8b58-98e5ddc7feb4",
+          "longId": 49,
+          "name": "AX",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 8,
+          "uuid": "06997f5d-9b20-428c-bae9-d069d82aefb8",
+          "longId": 50,
+          "name": "AY",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 9,
+          "uuid": "275f80ef-2f05-473f-badd-7fb3c6112e78",
+          "longId": 51,
+          "name": "AZ",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 10,
+          "uuid": "8cce4c78-f9da-4094-a43d-33ba716138fe",
+          "longId": 52,
+          "name": "BA",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 11,
+          "uuid": "e0372208-2ccd-4474-9143-9b2534371fc0",
+          "longId": 53,
+          "name": "BB",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 12,
+          "uuid": "ffed580f-85a0-4654-b569-582f74394d1b",
+          "longId": 54,
+          "name": "BC",
+          "worldId": 0
+        },
+        {
+          "bandName": "LOW_PAIRED",
+          "regionId": 13,
+          "uuid": "558196ea-72bc-459e-806e-8372ac45d78b",
+          "longId": 55,
+          "name": "BD",
+          "worldId": 0
+        }
+      ],
+      "synergies": {
+        "1": 1.1000000000,
+        "2": 1.2000000000
+      },
+      "uuid": "4ca943db-7f24-4e81-bfd7-17d14babbabd",
+      "name": "LOW_PAIRED",
+      "worldId": 0
+    },
+    {
+      "baseCapacity": 1.5249561746407845,
+      "numberOfLots": 3,
+      "licenses": [
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 0,
+          "uuid": "1589196f-def3-4817-9640-fbe422a96676",
+          "longId": 56,
+          "name": "BE",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 1,
+          "uuid": "195b24c6-0a11-47b1-8dca-405eb6a08431",
+          "longId": 57,
+          "name": "BF",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 2,
+          "uuid": "ac5fc80c-0c12-4ac4-8e74-bdc650b2f642",
+          "longId": 58,
+          "name": "BG",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 3,
+          "uuid": "3f101b66-5aaa-4d1e-b60c-7e044643a053",
+          "longId": 59,
+          "name": "BH",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 4,
+          "uuid": "3972b09e-2f55-47e8-9748-a42d711ca3e8",
+          "longId": 60,
+          "name": "BI",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 5,
+          "uuid": "5a5d29ce-88c9-42f1-ac72-2367ee49166d",
+          "longId": 61,
+          "name": "BJ",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 6,
+          "uuid": "75c066f5-db49-4b8f-b2fa-517f7bb0223e",
+          "longId": 62,
+          "name": "BK",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 7,
+          "uuid": "09780bae-b24d-4b8e-ac57-37044130fe1b",
+          "longId": 63,
+          "name": "BL",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 8,
+          "uuid": "11711d97-49ba-44d0-97b1-28a1a3dc99a0",
+          "longId": 64,
+          "name": "BM",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 9,
+          "uuid": "41077b49-ac4e-46da-887b-c41289ee1268",
+          "longId": 65,
+          "name": "BN",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 10,
+          "uuid": "ebcd7eb1-a964-4469-8fa7-9645dda471ce",
+          "longId": 66,
+          "name": "BO",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 11,
+          "uuid": "d7f5c733-df3d-49ac-89c9-954ae31276b9",
+          "longId": 67,
+          "name": "BP",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 12,
+          "uuid": "e88cba3d-8786-4635-9ae6-8f9cb56b44f3",
+          "longId": 68,
+          "name": "BQ",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 13,
+          "uuid": "886f3dfa-1e40-45d5-8ab6-92e002551548",
+          "longId": 69,
+          "name": "BR",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 0,
+          "uuid": "5484fe03-7eef-438d-9788-1d0c565be127",
+          "longId": 70,
+          "name": "BS",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 1,
+          "uuid": "ed42137e-3560-4ef1-a931-215654183ca0",
+          "longId": 71,
+          "name": "BT",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 2,
+          "uuid": "c24b51f8-e599-4881-82f1-8ac3229af83d",
+          "longId": 72,
+          "name": "BU",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 3,
+          "uuid": "39d8656f-5859-4f0d-9ba5-3e2d04bdf0db",
+          "longId": 73,
+          "name": "BV",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 4,
+          "uuid": "138a3175-c13f-4822-a665-4c700e51c0ff",
+          "longId": 74,
+          "name": "BW",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 5,
+          "uuid": "274b9b00-e5b2-44cd-9c3e-f8b3c6cbf181",
+          "longId": 75,
+          "name": "BX",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 6,
+          "uuid": "fb5a926b-f21e-4acd-b11b-c4bc3d410c34",
+          "longId": 76,
+          "name": "BY",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 7,
+          "uuid": "9036ce53-96e9-4567-8a3d-ebd7250e3f1f",
+          "longId": 77,
+          "name": "BZ",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 8,
+          "uuid": "6fb682a7-1e3b-453d-943d-fbf0d096ce5a",
+          "longId": 78,
+          "name": "CA",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 9,
+          "uuid": "44c05f0c-3ca3-4b82-83e2-e1e492c4ecc5",
+          "longId": 79,
+          "name": "CB",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 10,
+          "uuid": "ab70e495-8dd5-40e5-ad87-d3da631a329a",
+          "longId": 80,
+          "name": "CC",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 11,
+          "uuid": "59eeaf6a-3173-4c24-a834-967dc1400231",
+          "longId": 81,
+          "name": "CD",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 12,
+          "uuid": "ecfefbe3-928a-4cad-bfa8-36350acaff76",
+          "longId": 82,
+          "name": "CE",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 13,
+          "uuid": "c8bc8dd3-c00b-4748-8da8-e95b5e72d2bc",
+          "longId": 83,
+          "name": "CF",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 0,
+          "uuid": "dca66a31-d138-49e0-9dde-f8ec0b4a834c",
+          "longId": 84,
+          "name": "CG",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 1,
+          "uuid": "97b45e06-355c-4c5c-b82b-5023502cb205",
+          "longId": 85,
+          "name": "CH",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 2,
+          "uuid": "20b8549b-20b4-4932-b011-801b39f9b102",
+          "longId": 86,
+          "name": "CI",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 3,
+          "uuid": "f67b2cb7-a2e5-41c1-b691-67577c33a0b9",
+          "longId": 87,
+          "name": "CJ",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 4,
+          "uuid": "6c3a2d69-d1fb-42a4-9fa1-c6565198c1ab",
+          "longId": 88,
+          "name": "CK",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 5,
+          "uuid": "ce4f28f3-1344-41a0-b128-6079229be98f",
+          "longId": 89,
+          "name": "CL",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 6,
+          "uuid": "dfd6ea05-5cf5-4396-9edc-a68ff226cd41",
+          "longId": 90,
+          "name": "CM",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 7,
+          "uuid": "cdc54498-41bc-4061-b936-a45b44d5013b",
+          "longId": 91,
+          "name": "CN",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 8,
+          "uuid": "44e0e38e-f2e3-4f80-800b-1b38892c205b",
+          "longId": 92,
+          "name": "CO",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 9,
+          "uuid": "986feb50-a334-413e-803e-486d41cb97e3",
+          "longId": 93,
+          "name": "CP",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 10,
+          "uuid": "9ca7a470-e162-4314-855a-d84158dc8087",
+          "longId": 94,
+          "name": "CQ",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 11,
+          "uuid": "d6e1ca8c-e37f-4c12-a405-62439cb2848b",
+          "longId": 95,
+          "name": "CR",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 12,
+          "uuid": "984878db-97b6-4429-9398-7041aeb4aaa0",
+          "longId": 96,
+          "name": "CS",
+          "worldId": 0
+        },
+        {
+          "bandName": "HIGH_PAIRED",
+          "regionId": 13,
+          "uuid": "8837365d-3956-408f-a9d1-9a2f2473adcd",
+          "longId": 97,
+          "name": "CT",
+          "worldId": 0
+        }
+      ],
+      "synergies": {
+        "1": 1.1000000000,
+        "2": 1.2000000000,
+        "3": 1.1000000000
+      },
+      "uuid": "5034cfae-3e37-40cc-b144-f13849f8241f",
+      "name": "HIGH_PAIRED",
+      "worldId": 0
+    }
+  ],
+  "modelName": "Multi-Region Value Model",
+  "id": 0,
+  "implementation": "org.spectrumauctions.sats.core.model.mrvm.MRVMWorld"
+}

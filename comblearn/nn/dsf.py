@@ -2,7 +2,7 @@ from typing import Union, List
 from numbers import Number
 import torch.nn as nn
 import torch
-from .layers import PosLinear, MiLU
+from .layers import PosLinear, MiLU, MinComponent
 import logging
 
 class Modular(nn.Module):
@@ -31,6 +31,9 @@ class SCMM(nn.Module):
         else:
             y_pred = self.linear(x)
         return y_pred
+    
+    def relu(self):
+        self.linear.relu()
 
 
 class DSF(nn.Module): # Deep Submodular Function
@@ -50,6 +53,32 @@ class DSF(nn.Module): # Deep Submodular Function
             x = layer(x)
         return x
     
+    def relu(self):
+        for layer in self.layers:
+            layer.relu()
+
+
+class ExtendedDSF(nn.Module):
+    def __init__(self, in_dim, out_dim, max_out, hidden_sizes: List[int], alpha: Union[List[float], float] = 1.0):
+        super(ExtendedDSF, self).__init__()
+        if isinstance(alpha, Number):
+            alpha = [alpha] * len(hidden_sizes)
+
+        self.layers = nn.ParameterList()
+        self.layers.append(SCMM(in_dim, hidden_sizes[0], alpha=alpha[0]))
+        for i in range(1, len(hidden_sizes)):
+            self.layers.append(SCMM(hidden_sizes[i-1], hidden_sizes[i], alpha=alpha[i]))
+        self.layers.append(MinComponent())
+
+    def forward(self, x):
+        for layer in self.layers:
+            x = layer(x)
+        return x
+    
+    def relu(self):
+        for layer in self.layers:
+            layer.relu()
+    
 
 class DSFWrapper(nn.Module):
     def __init__(self, m, n, dsfs: List[DSF]):
@@ -63,7 +92,7 @@ class DSFWrapper(nn.Module):
         masked_weights = mask * self.weights
         s = torch.tensor([0.0]).cuda()
         for b, dsf in enumerate(self.dsfs):
-            s += dsf(masked_weights[..., b]).mean()
+            s += dsf(masked_weights[:, :, b]).mean()
         return s
     
     def project_weights(self, z=1): # It projects each "column" on to simplex
