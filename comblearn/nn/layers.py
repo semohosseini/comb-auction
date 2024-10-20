@@ -17,6 +17,18 @@ class PosLinear(nn.Module):
     def relu(self):
         self.weight.relu_()
 
+class PosLinear_1(nn.Module):
+    def __init__(self, in_dim, out_dim):
+        super(PosLinear_1, self).__init__()
+        self.weight = nn.Parameter(torch.randn((in_dim, out_dim)).abs_() * 0.1)
+        # self.bias = nn.Parameter(torch.randn((out_dim,)).abs_())
+        
+    def forward(self, x):
+        # assert (x >= 0).all()
+        return torch.matmul(x, self.weight) # + torch.abs(self.bias)
+    
+    def relu(self):
+        self.weight.relu_()
 
 class MinComponent(nn.Module):
     def forward(self, x):
@@ -34,9 +46,11 @@ class MiLU(nn.Module): # Minimum Linear function
 
     def forward(self, input: Tensor) -> Tensor:
         return torch.minimum(input, self.alpha)
-        #return torch.log(1+input)
+        # return torch.log(1+input)
+        # return torch.tanh(input)
         # s = nn.Sigmoid()
         # return s(input) - 0.5
+        # return input
 
 
     def extra_repr(self) -> str:

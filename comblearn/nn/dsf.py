@@ -2,7 +2,7 @@ from typing import Union, List
 from numbers import Number
 import torch.nn as nn
 import torch
-from .layers import PosLinear, MiLU, MinComponent
+from .layers import PosLinear, MiLU, MinComponent, PosLinear_1
 import logging
 
 class Modular(nn.Module):
@@ -35,6 +35,25 @@ class SCMM(nn.Module):
     def relu(self):
         self.linear.relu()
 
+class SCMM_1(nn.Module):
+    def __init__(self, in_dim, out_dim, alpha: float = 1.0, set_activation=True):
+        super(SCMM_1, self).__init__()
+        self.set_activation = set_activation
+        self.linear = PosLinear_1(in_dim, out_dim)
+        self.activation = MiLU(alpha=alpha)
+
+    def forward(self, x):
+        y_pred = None
+        if self.set_activation:
+            x = self.linear(x)
+            y_pred = self.activation(x)
+        else:
+            y_pred = self.linear(x)
+        return y_pred
+    
+    def relu(self):
+        self.linear.relu()
+
 
 class DSF(nn.Module): # Deep Submodular Function
     def __init__(self, in_dim, out_dim, max_out, hidden_sizes: List[int], alpha: Union[List[float], float] = 1.0):
@@ -43,10 +62,10 @@ class DSF(nn.Module): # Deep Submodular Function
             alpha = [alpha] * len(hidden_sizes)
 
         self.layers = nn.ParameterList()
-        self.layers.append(SCMM(in_dim, hidden_sizes[0], alpha=alpha[0]))
+        self.layers.append(SCMM_1(in_dim, hidden_sizes[0], alpha=alpha[0]))
         for i in range(1, len(hidden_sizes)):
-            self.layers.append(SCMM(hidden_sizes[i-1], hidden_sizes[i], alpha=alpha[i]))
-        self.layers.append(SCMM(hidden_sizes[-1], out_dim, alpha=max_out, set_activation=False))
+            self.layers.append(SCMM_1(hidden_sizes[i-1], hidden_sizes[i], alpha=alpha[i]))
+        self.layers.append(SCMM_1(hidden_sizes[-1], out_dim, alpha=max_out, set_activation=False))
 
     def forward(self, x):
         for layer in self.layers:
@@ -68,12 +87,37 @@ class ExtendedDSF(nn.Module):
         self.layers.append(SCMM(in_dim, hidden_sizes[0], alpha=alpha[0]))
         for i in range(1, len(hidden_sizes)):
             self.layers.append(SCMM(hidden_sizes[i-1], hidden_sizes[i], alpha=alpha[i]))
+        self.layers.append(SCMM(hidden_sizes[-1], hidden_sizes[-1], alpha=1000000000000))
         self.layers.append(MinComponent())
 
     def forward(self, x):
         for layer in self.layers:
             x = layer(x)
         return x
+    
+    def relu(self):
+        for layer in self.layers:
+            layer.relu()
+
+class ExtendedGeneralDSF(nn.Module):
+    def __init__(self, in_dim, out_dim, max_out, hidden_sizes: List[int], alpha: Union[List[float], float] = 1.0):
+        super(ExtendedGeneralDSF, self).__init__()
+        if isinstance(alpha, Number):
+            alpha = [alpha] * len(hidden_sizes)
+
+        self.layers = nn.ParameterList()
+        self.layers.append(SCMM(in_dim, hidden_sizes[0], alpha=alpha[0]))
+        for i in range(1, len(hidden_sizes)):
+            self.layers.append(SCMM(hidden_sizes[i-1], hidden_sizes[i], alpha=alpha[i]))
+        self.layers.append(SCMM(hidden_sizes[-1], hidden_sizes[-1], alpha=1000000000000))
+        self.layers.append(MinComponent())
+        self.mod = nn.Parameter(torch.normal(0, 1, size=(in_dim, 1)).float())
+
+    def forward(self, x):
+        y = x
+        for layer in self.layers:
+            x = layer(x)
+        return x + torch.matmul(y, self.mod).squeeze()
     
     def relu(self):
         for layer in self.layers:

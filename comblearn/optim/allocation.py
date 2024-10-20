@@ -69,7 +69,7 @@ class RandGreedyOptimizer(Optimizer):
             rpj = r.clone()
             if rpj[0, j] == 0.:
                 rpj[0, j] = 1.
-            v += (w(rpj) - w(r))[0, 0]
+            v += (w(rpj) - w(r))[0]
         return v / k
 
     def optimize(self, delta, sample_rate):
@@ -133,7 +133,7 @@ class GradientAscentOptimizer(Optimizer):
         
         return wrapper.weights.clone().detach()
     
-    def optimize(self, lr=2e-1, bs=10, num_iterations=10000):
+    def optimize(self, lr=2e-1, bs=10, num_iterations=5000):
         self.y.requires_grad = True
         for i in range(num_iterations):
             #print(f'iteration is: {i}')
@@ -142,7 +142,7 @@ class GradientAscentOptimizer(Optimizer):
             for b in range(self.n):
                 s += self.ws[b](self.y[:,b])
             self.y.retain_grad()
-            if(i % 10 == 0):
+            if(i % 1000 == 0):
                 print(f'output is: {s.item()}, iteration is: {i}')
             s.backward()
             #print(self.y.grad)

@@ -49,6 +49,22 @@ class CombinatorialAuction():
         self.learning_handler = LearningHandler(models, self.data_handler, self.learning_config)
 
         self.allocation_handler = AllocationHandler(self.items, models, self.allocation_config)
+
+        if 'comp' in cfg['learning'] and cfg['learning']:
+            self.comp = True
+        else:
+            self.comp = False
+        
+        if self.comp:
+            models1 = {}
+            for mcfg in cfg['learning']['models1']:
+                vf_cls = eval(mcfg['cls'])
+                vf = vf_cls(self.items, *mcfg['args']).to(self.device)
+                models1[mcfg['name']] = vf
+            self.learning_handler1 = LearningHandler(models1, self.data_handler, self.learning_config)
+
+            self.allocation_handler1 = AllocationHandler(self.items, models1, self.allocation_config)
+
         self.next_queries = NextQueryGenerator(self.query_config, self.data_handler, self.learning_handler, self.allocation_handler)
 
     def run(self, writer=None):
@@ -86,6 +102,8 @@ class CombinatorialAuction():
         # Final allocation
         logging.info("Final allocation calculation...")
         self.learning_handler.learn(writer=writer, step=T+1)
+
+
         #allocation, social_welfare = self.allocation_handler.allocate()
         #if writer:
         #    writer.add_scalar("Social Welfare", social_welfare, T+1)
@@ -114,6 +132,18 @@ class CombinatorialAuction():
         else:
             print('No value function is available, calculate social_welfare from source')
             opt_alloc, h = self.allocation_handler.allocate()
+
+        if self.comp:
+            logging.info("Compare to other models...")
+            self.learning_handler1.learn(writer=writer, step=T+1)
+            s1 = 0
+            allocation1, h = self.allocation_handler1.allocate()
+            for b in self.bidders:
+                s1 += b(allocation1[b.name])
+            opt_alloc1, social_welfare1 = allocation1, s1
+
+        if self.comp:
+            return opt_alloc, social_welfare, opt_alloc1, social_welfare1
         return opt_alloc, social_welfare
 
 

@@ -28,7 +28,7 @@ class AllocationHandler:
             optimizer = opt_cls(m, n, ws)
             optimizer.optimize(delta=self.config['delta'], sample_rate=self.config['sample_rate'])
         elif self.config['scheme'] == 'GradientAscent':
-            print(ws[0])
+            # print(ws[0])
             optimizer = opt_cls(m, n, ws, eps=self.config['eps'])
             optimizer.optimize(lr=self.config['learning-rate'], bs=self.config['batch-size'])
         else:

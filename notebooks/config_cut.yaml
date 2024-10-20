@@ -1,0 +1,56 @@
+auction:
+  bidders: 
+    - name: '0'
+      cls: 'comblearn.data.GraphCutValueFunction'
+      args: [0.2]
+    - name: '1'
+      cls: 'comblearn.data.GraphCutValueFunction'
+      args: [0.5]
+    - name: '2'
+      cls: 'comblearn.data.GraphCutValueFunction'
+      args: [0.8]
+
+
+  
+  items: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41,42,43,44, 45, 46, 47, 48, 49]
+
+  data:
+    q-init: 1024
+    q-max: 1028
+    brute-force: False
+    init: True
+
+  query:
+    marginal: False
+    max-retries: 10
+
+  device: 'cuda'
+
+  queries_path: '/home/mahdi_mousavi/comb-auction/notebooks/lsvm_queries.txt'
+
+
+  learning:
+    cls: 'comblearn.optim.learning.DSFLearner'
+    optimizer: torch.optim.Adam
+    learning-rate: 0.01
+    epochs: 6000
+    models:
+      - name: '0'
+        cls: 'comblearn.data.ExtendedGeneralDSFValueFunction'
+        args: [60, [64, 64, 64], 40]
+      - name: '1'
+        cls: 'comblearn.data.ExtendedGeneralDSFValueFunction'
+        args: [60, [64, 64, 64], 40]
+      - name: '2'
+        cls: 'comblearn.data.ExtendedGeneralDSFValueFunction'
+        args: [60, [64, 64, 64], 40]
+
+
+  allocation:
+    scheme: 'RandGreedy'
+    optimizer: 'comblearn.optim.RandGreedyOptimizer'
+    delta: 0.005
+    sample_rate: 5
+
+
+

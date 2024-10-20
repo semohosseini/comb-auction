@@ -1,7 +1,11 @@
 import torch
 from torch import nn
-from ..nn import DSF, Modular, Universe, ExtendedDSF
+from torch.nn import functional as F
+from ..nn import DSF, Modular, Universe, ExtendedDSF, ExtendedGeneralDSF
+from .set_trf import SetTransformer
 import random
+
+from .cut import Graph
 
 class ValueFunction(nn.Module):
     def __init__(self, items, device='cuda' if torch.cuda.is_available() else 'cpu'):
@@ -41,6 +45,35 @@ class DSFValueFunction(ValueFunction):
     def relu(self):
         self.dsf.relu()
 
+class VNNValueFunction(ValueFunction):
+    def __init__(self, items, max_out, hidden_sizes, alpha, device='cuda' if torch.cuda.is_available() else 'cpu'):
+        super().__init__(items, device)
+        self.vnn =  nn.Sequential()
+        for i in range(len(hidden_sizes)):
+            infeat = len(items) if i == 0 else hidden_sizes[i-1]
+            outfeat = hidden_sizes[i]
+            self.vnn.append(nn.Linear(infeat, outfeat))
+            self.vnn.append(nn.ReLU())
+        self.vnn.append(nn.Linear(hidden_sizes[-1], 1))
+        self.vnn.to(device)
+
+    def forward(self, bundle):  # `bundle` can be a batch of bundles
+        return self.vnn(bundle)
+    
+    def relu(self):
+        pass
+
+class SetTrfValueFunction(ValueFunction):
+    def __init__(self, items, max_out, hidden_sizes, alpha, device='cuda' if torch.cuda.is_available() else 'cpu'):
+        super().__init__(items, device)
+        self.settrf =  SetTransformer(len(items), 1, 1)
+
+    def forward(self, bundle):  # `bundle` can be a batch of bundles
+        return self.settrf(bundle)
+    
+    def relu(self):
+        pass
+
 class ExtendedDSFValueFunction(ValueFunction):
     def __init__(self, items, max_out, hidden_sizes, alpha, device='cuda' if torch.cuda.is_available() else 'cpu'):
         super().__init__(items, device)
@@ -53,6 +86,74 @@ class ExtendedDSFValueFunction(ValueFunction):
         self.edsf.relu()
 
 
+class ExtendedGeneralDSFValueFunction(ValueFunction):
+    def __init__(self, items, max_out, hidden_sizes, alpha, device='cuda' if torch.cuda.is_available() else 'cpu'):
+        super().__init__(items, device)
+        self.edsf =  ExtendedGeneralDSF(len(items), 1, max_out, hidden_sizes, alpha).to(device)
+
+    def forward(self, bundle):  # `bundle` can be a batch of bundles
+        return self.edsf(bundle)
+    
+    def relu(self):
+        self.edsf.relu()
+
+
+class DeepSets(ValueFunction):
+    def __init__(self, items, phi_hidden_dims, rho_hidden_dims, output_dim=1,  device='cuda' if torch.cuda.is_available() else 'cpu'):
+        super(DeepSets, self).__init__(items, device)
+        
+        input_dim = len(items)
+
+        phi_layers = []
+        prev_dim = input_dim
+        for hidden_dim in phi_hidden_dims:
+            phi_layers.extend([
+                nn.Linear(prev_dim, hidden_dim),
+                nn.ReLU()
+            ])
+            prev_dim = hidden_dim
+        self.phi = nn.Sequential(*phi_layers)
+        
+        rho_layers = []
+        prev_dim = prev_dim 
+        for hidden_dim in rho_hidden_dims:
+            rho_layers.extend([
+                nn.Linear(prev_dim, hidden_dim),
+                nn.ReLU()
+            ])
+            prev_dim = hidden_dim
+        rho_layers.append(nn.Linear(prev_dim, output_dim))
+        self.rho = nn.Sequential(*rho_layers)
+        
+    def to_one_hot(self, x):
+        # Get the number of items (columns)
+        num_items = len(self.items)
+        
+        # Create a mask for non-zero values
+        mask = x != 0
+        
+        # Create one-hot vectors for each non-zero value
+        one_hot = F.one_hot(torch.arange(num_items), num_classes=num_items).to(x.device)
+        
+        # Apply the mask to the one-hot vectors
+        result = mask.unsqueeze(-1) * one_hot.unsqueeze(0)
+        
+        return result[:, torch.randperm(result.size(1))]
+
+    def forward(self, x):
+        # x shape: (batch_size, set_size, input_dim)
+        x = self.to_one_hot(x).float()
+        # Reshape if necessary to match expected input shape (batch_size, set_size, input_dim)
+        if x.dim() == 2:
+            x = x.unsqueeze(1)
+        x = self.phi(x)  
+        x = torch.sum(x, dim=1)
+        return self.rho(x)
+    
+    def relu(self):
+        pass
+
+
 class CoverageValueFunction(ValueFunction):
     def __init__(self, items, universe, p=0.5, device='cuda' if torch.cuda.is_available() else 'cpu'):
         super().__init__(items, device)
@@ -60,6 +161,16 @@ class CoverageValueFunction(ValueFunction):
 
     def forward(self, x):
         return self.universe(x)
+
+
+class GraphCutValueFunction(ValueFunction):
+    def __init__(self, items, p=0.5, device='cuda' if torch.cuda.is_available() else 'cpu'):
+        super().__init__(items, device)
+        self.graph = Graph(len(items), p)
+
+    def forward(self, x):
+        return self.graph.get_cut_size(x).to(self.device)
+
     
 class MRVMValueFunction(ValueFunction):
     def __init__(self, items, bidder, world, device='cuda' if torch.cuda.is_available() else 'cpu'):
