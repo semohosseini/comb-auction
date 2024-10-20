@@ -2,8 +2,8 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 from ..nn import DSF, Modular, Universe, ExtendedDSF, ExtendedGeneralDSF
-from .set_trf import SetTransformer
-import random
+
+from .set_trf import SAB, ISAB, PMA
 
 from .cut import Graph
 
@@ -63,13 +63,39 @@ class VNNValueFunction(ValueFunction):
     def relu(self):
         pass
 
-class SetTrfValueFunction(ValueFunction):
-    def __init__(self, items, max_out, hidden_sizes, alpha, device='cuda' if torch.cuda.is_available() else 'cpu'):
-        super().__init__(items, device)
-        self.settrf =  SetTransformer(len(items), 1, 1)
+class SetTransformer(ValueFunction):
+    def __init__(self, items, num_outputs, dim_output,
+            num_inds=32, dim_hidden=128, num_heads=4, ln=False, 
+            device='cuda' if torch.cuda.is_available() else 'cpu'):
+        super(SetTransformer, self).__init__(items, device)
+        dim_input = len(items)
+        self.enc = nn.Sequential(
+                ISAB(dim_input, dim_hidden, num_heads, num_inds, ln=ln),
+                ISAB(dim_hidden, dim_hidden, num_heads, num_inds, ln=ln))
+        self.dec = nn.Sequential(
+                PMA(dim_hidden, num_heads, num_outputs, ln=ln),
+                SAB(dim_hidden, dim_hidden, num_heads, ln=ln),
+                SAB(dim_hidden, dim_hidden, num_heads, ln=ln),
+                nn.Linear(dim_hidden, dim_output))
 
-    def forward(self, bundle):  # `bundle` can be a batch of bundles
-        return self.settrf(bundle)
+    def to_one_hot(self, x):
+        # Get the number of items (columns)
+        num_items = len(self.items)
+        
+        # Create a mask for non-zero values
+        mask = x != 0
+        
+        # Create one-hot vectors for each non-zero value
+        one_hot = F.one_hot(torch.arange(num_items), num_classes=num_items).to(x.device)
+        
+        # Apply the mask to the one-hot vectors
+        result = mask.unsqueeze(-1) * one_hot.unsqueeze(0)
+        
+        return result[:, torch.randperm(result.size(1))]
+    
+    def forward(self, X):
+        X = self.to_one_hot(X).float()
+        return self.dec(self.enc(X))
     
     def relu(self):
         pass
